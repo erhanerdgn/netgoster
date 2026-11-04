@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { ArrowRight, History, Search, TrendingUp } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Bookmark, Check, History, Search, ShieldCheck, Trash2, Zap } from 'lucide-react';
 import { openSearch } from '@/components/layout/Header';
 import { ToolCard } from '@/components/ToolCard';
+import { QuickCalculator } from '@/components/QuickCalculator';
+import { IntentPaths } from '@/components/IntentPaths';
 import { JsonLd } from '@/components/JsonLd';
 import { AdSlot } from '@/components/AdSlot';
-import { categories, popularTools, toolBySlug, tools, toolsIn, type Tool } from '@/tools.registry';
-import { getRecent } from '@/lib/storage';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { categories, toolBySlug, tools, toolsIn, type Tool } from '@/tools.registry';
+import { getRecent, removeSaved } from '@/lib/storage';
+import { useLibrary } from '@/hooks/useLibrary';
 import { site } from '@/config/site';
 
 export default function HomePage() {
   const [recent, setRecent] = useState<Tool[]>([]);
+  const [search, setSearch] = useState('');
+  const [expanded, setExpanded] = useState(false);
+  const { favorites, saved } = useLibrary();
   useEffect(() => {
     setRecent(
       getRecent()
@@ -18,151 +26,231 @@ export default function HomePage() {
         .filter((t): t is Tool => !!t),
     );
   }, []);
+  const favoriteTools = favorites.map((s) => toolBySlug.get(s)).filter((t): t is Tool => !!t);
+  const filtered = tools.filter((t) =>
+    `${t.title} ${t.lead}`.toLocaleLowerCase('tr').includes(search.toLocaleLowerCase('tr').trim()),
+  );
+  const visible = expanded || search.trim() ? filtered : filtered.slice(0, 9);
 
   return (
     <>
-      <section className="border-b bg-card">
-        <div className="container-page py-12 sm:py-16">
-          <p className="text-sm font-semibold text-primary">{tools.length} ücretsiz hesaplama aracı</p>
-          <h1 className="mt-3 max-w-3xl text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl">
-            Maaştan krediye, sınavdan sağlığa: <span className="text-primary">hesaplayın, net görün.</span>
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            Güncel mevzuat ve resmi parametrelerle çalışan, hızlı ve mobil uyumlu hesaplama araçları. Kayıt yok, ücret yok.
-          </p>
-          <button
-            type="button"
-            onClick={openSearch}
-            className="mt-8 flex h-14 w-full max-w-2xl items-center gap-3 rounded-2xl border-2 bg-background px-5 text-left text-base text-muted-foreground shadow-soft transition-colors hover:border-primary/50"
-          >
-            <Search className="size-5 text-primary" aria-hidden />
-            <span className="flex-1">Hangi hesaplamayı arıyorsunuz? (ör. kıdem, KDV, VKİ)</span>
-            <kbd className="hidden rounded-md border bg-muted px-2 py-0.5 text-xs sm:inline">Ctrl K</kbd>
-          </button>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {popularTools.slice(0, 6).map((t) => (
-              <Link
-                key={t.slug}
-                to={`/${t.slug}`}
-                className="flex min-h-11 items-center rounded-full border bg-background px-4 text-sm font-medium hover:border-primary/50 hover:text-primary"
-              >
-                {t.name}
-              </Link>
-            ))}
+      <AdSlot slot="top" variant="banner" className="container-page my-4" />
+      <section className="home-hero relative overflow-hidden border-b">
+        <div className="container-page relative grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16 lg:py-20">
+          <div>
+            <p className="eyebrow flex items-center gap-2">
+              <span className="size-2 rounded-full bg-result" /> GÜNLÜK HAYATIN HESAP KİTABI
+            </p>
+            <h1 className="mt-5 max-w-xl text-[2.65rem] leading-[1.08] font-bold tracking-tight sm:text-6xl">
+              Aklındaki hesap,
+              <br />
+              <span className="text-primary">önündeki netlik.</span>
+            </h1>
+            <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
+              Maaşın, evin, birikimin, hedeflerin. {tools.length} ücretsiz araçla hesapla; seçeneklerini gör, kararını netleştir.
+            </p>
+            <button
+              type="button"
+              onClick={openSearch}
+              className="mt-7 flex min-h-14 w-full max-w-lg items-center gap-3 rounded-xl border bg-card px-4 text-left shadow-soft transition-colors hover:border-primary"
+            >
+              <Search className="size-5 shrink-0 text-primary" aria-hidden />
+              <span className="flex-1 text-sm text-muted-foreground">Neyi hesaplamak istiyorsun?</span>
+              <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-xs sm:inline">⌘ / Ctrl K</kbd>
+            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {[
+                ['Net maaş', 'brutten-nete-maas-hesaplama'],
+                ['Kredi taksiti', 'kredi-hesaplama'],
+                ['Kira artışı', 'kira-artis-hesaplama'],
+              ].map(([name, slug]) => (
+                <Link
+                  key={slug}
+                  to={`/${slug}`}
+                  className="inline-flex min-h-11 items-center gap-1 px-2 text-sm font-medium text-primary hover:underline"
+                >
+                  {name}
+                  <ArrowUpRight className="size-3.5" aria-hidden />
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Check className="size-4 text-result" aria-hidden /> Ücretsiz, kayıt yok
+              </span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="size-4 text-result" aria-hidden /> Hesaplar tarayıcında
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Zap className="size-4 text-result" aria-hidden /> Anında sonuç
+              </span>
+            </div>
           </div>
+          <QuickCalculator />
         </div>
       </section>
 
-      <div className="container-page space-y-14 py-12">
-        {recent.length > 0 && (
-          <section aria-labelledby="son">
-            <h2 id="son" className="flex items-center gap-2 text-xl font-semibold">
-              <History className="size-5 text-primary" aria-hidden /> Son kullandıkların
-            </h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {recent.map((t) => (
-                <ToolCard key={t.slug} tool={t} compact />
-              ))}
+      <div className="container-page flex flex-col gap-12 py-10 sm:gap-16 sm:py-14">
+        {(favoriteTools.length > 0 || recent.length > 0 || saved.length > 0) && (
+          <section aria-labelledby="sana-ozel" className="rounded-2xl border bg-card p-5 sm:p-6">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+              <h2 id="sana-ozel" className="flex items-center gap-2 text-xl font-semibold">
+                <Bookmark className="size-5 text-primary" aria-hidden /> Senin hesap köşen
+              </h2>
+              <p className="text-xs text-muted-foreground">Bu tarayıcıda saklanır. İstediğin zaman silebilirsin.</p>
             </div>
+            {favoriteTools.length > 0 && (
+              <div className="mb-5">
+                <h3 className="mb-3 text-sm font-medium text-muted-foreground">Favorilerin</h3>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {favoriteTools.map((t) => (
+                    <ToolCard key={t.slug} tool={t} compact />
+                  ))}
+                </div>
+              </div>
+            )}
+            {saved.length > 0 && (
+              <div className="mb-5">
+                <h3 className="mb-3 text-sm font-medium text-muted-foreground">Kaydettiğin hesaplamalar</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {saved
+                    .filter((s) => toolBySlug.has(s.slug))
+                    .map((s) => (
+                      <div key={s.id} className="flex items-center gap-2 rounded-xl border p-3">
+                        <Link to={`/${s.slug}?${s.query}`} className="flex min-w-0 flex-1 flex-col gap-1">
+                          <span className="text-sm font-semibold">{s.title}</span>
+                          <span className="text-xs text-muted-foreground">{s.label}</span>
+                          <span className="tabular text-lg font-semibold text-primary">{s.value}</span>
+                          <span className="text-xs text-muted-foreground">Hesabı yeniden aç →</span>
+                        </Link>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeSaved(s.id)}
+                          aria-label={`${s.title}, ${s.value}: kaydı sil`}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+            {recent.length > 0 && (
+              <div>
+                <h3 className="mb-3 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+                  <History className="size-4" aria-hidden /> Son kullandıkların
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {recent.map((t) => (
+                    <Link
+                      key={t.slug}
+                      to={`/${t.slug}`}
+                      className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-muted px-3 text-sm hover:text-primary"
+                    >
+                      {t.name}
+                      <ArrowUpRight className="size-3.5" aria-hidden />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
-        <section aria-labelledby="kategoriler">
-          <h2 id="kategoriler" className="text-2xl font-semibold tracking-tight">
-            Kategoriler
-          </h2>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <IntentPaths />
+        <AdSlot slot="home" className="my-0" />
+
+        <section id="tum-araclar" aria-labelledby="araclar">
+          <div className="flex flex-wrap items-end justify-between gap-5">
+            <div>
+              <p className="eyebrow">BİR HESAPTAN DAHA FAZLASI</p>
+              <h2 id="araclar" className="section-title mt-2">
+                İhtiyacın olan araç burada.
+              </h2>
+            </div>
+            <div className="relative w-full sm:w-72">
+              <Search className="pointer-events-none absolute top-3.5 left-3 size-4 text-muted-foreground" aria-hidden />
+              <Input
+                aria-label="Hesaplama araçlarını filtrele"
+                placeholder="Araçlarda ara…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </div>
+          <div id="tool-results" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((t) => (
+              <ToolCard key={t.slug} tool={t} />
+            ))}
+          </div>
+          <p className="sr-only" aria-live="polite">
+            {filtered.length} araç bulundu.
+          </p>
+          {filtered.length === 0 && (
+            <div className="py-10 text-center">
+              <p className="text-muted-foreground">Bu aramayla eşleşen araç bulunamadı.</p>
+              <Button type="button" variant="link" onClick={() => setSearch('')}>
+                Tüm araçları göster
+              </Button>
+            </div>
+          )}
+          {!search.trim() && (
+            <div className="mt-6 text-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => setExpanded(!expanded)}
+                aria-expanded={expanded}
+                aria-controls="tool-results"
+              >
+                {expanded ? 'Daha az göster' : `${tools.length} aracın tümünü keşfet`}
+                <ArrowDown data-icon="inline-end" />
+              </Button>
+            </div>
+          )}
+        </section>
+
+        <section aria-labelledby="kategoriler" id="tool-directory">
+          <div className="mb-5">
+            <p className="eyebrow">KONU KONU KEŞFET</p>
+            <h2 id="kategoriler" className="section-title mt-2">
+              Hayatın her hesabına bir yer.
+            </h2>
+          </div>
+          <div className="grid gap-px overflow-hidden rounded-2xl border bg-border sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((c) => (
               <Link
                 key={c.id}
                 to={`/${c.slug}`}
-                className="group rounded-2xl border bg-card p-5 shadow-soft transition-colors hover:border-primary/40"
+                className="group flex items-center gap-4 bg-card p-5 transition-colors hover:bg-accent"
               >
-                <div className="flex items-center gap-3">
-                  <span className="flex size-11 items-center justify-center rounded-xl bg-accent text-primary">
-                    <c.icon className="size-5" aria-hidden />
-                  </span>
-                  <span className="text-lg font-semibold">{c.name}</span>
-                  <span className="ml-auto rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                    {toolsIn(c.id).length} araç
-                  </span>
+                <c.icon className="size-6 shrink-0 text-primary" aria-hidden />
+                <div className="flex-1">
+                  <h3 className="font-semibold">{c.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{toolsIn(c.id).length} ücretsiz araç</p>
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">{c.description}</p>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                  Tümünü gör <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                </span>
+                <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-primary" aria-hidden />
               </Link>
             ))}
           </div>
         </section>
-
         <AdSlot slot="list" className="my-0" />
-
-        <section aria-labelledby="populer">
-          <h2 id="populer" className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <TrendingUp className="size-6 text-primary" aria-hidden /> En çok kullanılanlar
-          </h2>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {popularTools.map((t) => (
-              <ToolCard key={t.slug} tool={t} />
-            ))}
-          </div>
-        </section>
-
-        <AdSlot slot="list" className="my-0" />
-
-        <section aria-labelledby="tum-araclar">
-          <h2 id="tum-araclar" className="text-2xl font-semibold tracking-tight">
-            Tüm hesaplama araçları
-          </h2>
-          <div className="mt-5 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((c) => (
-              <nav key={c.id} aria-label={c.name}>
-                <Link to={`/${c.slug}`} className="flex items-center gap-2 font-semibold hover:text-primary">
-                  <c.icon className="size-4 text-primary" aria-hidden /> {c.name}
-                </Link>
-                <ul className="mt-2">
-                  {toolsIn(c.id).map((t) => (
-                    <li key={t.slug}>
-                      <Link
-                        to={`/${t.slug}`}
-                        className="flex min-h-9 items-center text-sm text-muted-foreground hover:text-primary"
-                      >
-                        {t.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="neden" className="rounded-2xl border bg-card p-6 sm:p-8">
-          <h2 id="neden" className="text-2xl font-semibold tracking-tight">
-            Neden {site.name}?
-          </h2>
-          <div className="mt-5 grid gap-6 sm:grid-cols-3">
-            {[
-              [
-                'Güncel parametreler',
-                'Asgari ücret, vergi dilimleri, SGK oranları ve tavanlar resmi kaynaklardan dönemsel olarak güncellenir; hesaplama tarihinize göre doğru dönem seçilir.',
-              ],
-              [
-                'Anında ve gizli',
-                'Hesaplamalar tarayıcınızda yapılır; girdiğiniz maaş veya sağlık bilgileri sunucuya gönderilmez.',
-              ],
-              [
-                'Açıklamalı sonuçlar',
-                'Her sonucun altında kalem kalem döküm, formül, örnek hesaplamalar ve yasal dayanak bulunur.',
-              ],
-            ].map(([t, d]) => (
-              <div key={t}>
-                <h3 className="font-semibold">{t}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">{d}</p>
-              </div>
-            ))}
-          </div>
+        <section className="grid gap-6 border-t pt-8 sm:grid-cols-3" aria-label="NetGöster nasıl çalışır?">
+          {[
+            ['01', 'Hesabını seç', 'Günlük bir ihtiyaçtan başla; maaş, kira, kredi veya sınav.'],
+            ['02', 'Değerlerini gir', 'Alanları doldurdukça sonucun ve ayrıntılı dökümün oluşsun.'],
+            ['03', 'Seçeneklerini gör', 'Senaryoları karşılaştır, sonucu kaydet veya paylaş.'],
+          ].map(([n, title, description]) => (
+            <div key={n}>
+              <span className="text-sm font-semibold text-primary">{n} /</span>
+              <h2 className="mt-3 font-semibold">{title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+            </div>
+          ))}
         </section>
       </div>
       <JsonLd

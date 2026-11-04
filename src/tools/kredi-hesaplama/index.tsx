@@ -21,6 +21,18 @@ function present(v: KrediValues): ResultView {
       value: tl(r.taksit),
       caption: `${TUR_AD[v.tur]} · ${v.vade} ay · aylık %${num(v.faiz, 4)}`,
     },
+    chart: {
+      title: 'Toplam maliyetin dağılımı',
+      items: [
+        { label: 'Anapara', value: v.tutar, formatted: tl(v.tutar) },
+        { label: 'Faiz', value: r.toplamFaiz, formatted: tl(r.toplamFaiz) },
+        {
+          label: 'Vergiler ve masraflar',
+          value: r.toplamKkdf + r.toplamBsmv + r.masraf,
+          formatted: tl(r.toplamKkdf + r.toplamBsmv + r.masraf),
+        },
+      ],
+    },
     status: vergili
       ? {
           tone: 'info',

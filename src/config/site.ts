@@ -21,11 +21,13 @@ export const site = {
   adsenseClient: e('VITE_ADSENSE_CLIENT'),
   /**
    * Reklam birimi (slot) kimlikleri — AdSense > Reklamlar > Reklam birimine göre > Görüntülü (duyarlı).
-   * Boş bırakılan birim çizilmez. Yerleşim (araç sayfası): sonucun altı → içerik arası (1–2) → masaüstü kenar
+   * Kimliği boş birimler sade Ads kutusu olarak kalır. Yerleşim (araç sayfası): sonucun altı → içerik arası (1–2) → masaüstü kenar
    * çubuğu (yapışkan) → sayfa sonu. Ana sayfa/kategori: bölümler arası. Form ile sonuç arasında ASLA reklam yok.
    */
   adSlots: {
-    /** Sonuç kartının / ödeme tablosunun hemen altı (en yüksek görünürlük) */
+    /** Ana sayfa, kategori ve araçlarda başlıktan önce yatay bant */
+    top: e('VITE_AD_SLOT_TOP'),
+    /** Sonuç ve devam aksiyonlarından sonra, uzun tablodan önce (en yüksek görünürlük) */
     result: e('VITE_AD_SLOT_RESULT'),
     /** İçerik ortası (makale içi) */
     content: e('VITE_AD_SLOT_CONTENT'),
@@ -35,7 +37,11 @@ export const site = {
     sidebar: e('VITE_AD_SLOT_SIDEBAR'),
     /** Sayfa sonu (ilgili hesaplamalardan önce) */
     footer: e('VITE_AD_SLOT_FOOTER'),
-    /** Ana sayfa ve kategori sayfaları bölüm arası */
+    /** Ana sayfada ihtiyaç yollarından sonra */
+    home: e('VITE_AD_SLOT_HOME'),
+    /** Kategori araç listesinden sonra */
+    category: e('VITE_AD_SLOT_CATEGORY'),
+    /** Ana sayfa alt bölüm */
     list: e('VITE_AD_SLOT_LIST'),
   },
   /** Google Search Console HTML etiketi doğrulama kodu (content="..." değeri). */

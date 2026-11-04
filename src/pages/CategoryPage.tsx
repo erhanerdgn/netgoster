@@ -11,6 +11,7 @@ export default function CategoryPage({ category }: { category: Category }) {
   const list = toolsIn(category.id);
   return (
     <div className="container-page pb-12">
+      <AdSlot slot="top" variant="banner" className="my-4" />
       <Breadcrumbs items={[{ name: category.name, path: `/${category.slug}` }]} />
       <header className="flex items-start gap-4">
         <span className="hidden size-14 shrink-0 items-center justify-center rounded-2xl bg-accent text-primary sm:flex">
@@ -26,6 +27,7 @@ export default function CategoryPage({ category }: { category: Category }) {
           <ToolCard key={t.slug} tool={t} />
         ))}
       </div>
+      <AdSlot slot="category" />
       <section aria-labelledby="hakkinda" className="mt-10 max-w-3xl">
         <h2 id="hakkinda" className="text-xl font-semibold">
           {category.name} hesaplamaları hakkında
@@ -36,7 +38,6 @@ export default function CategoryPage({ category }: { category: Category }) {
           ))}
         </div>
       </section>
-      <AdSlot slot="list" />
       <section aria-labelledby="diger" className="mt-4">
         <h2 id="diger" className="text-xl font-semibold">
           Diğer kategoriler

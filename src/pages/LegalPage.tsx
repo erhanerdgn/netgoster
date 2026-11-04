@@ -71,8 +71,11 @@ const pages: Record<string, ReactNode> = {
       </p>
       <h2>Tarayıcıda saklanan bilgiler</h2>
       <p>
-        Tema tercihiniz, çerez tercihiniz ve “Son kullandıkların” listesi tarayıcınızın yerel depolamasında (localStorage)
-        tutulur. Bunlar cihazınızda kalır, bize iletilmez; tarayıcı ayarlarınızdan silebilirsiniz.
+        Tema tercihiniz, çerez tercihiniz, favori araçlarınız ve “Son kullandıkların” listesi tarayıcınızın yerel depolamasında
+        (localStorage) tutulur. “Sonucu kaydet” seçeneğini kullanırsanız hesaplamanın girdileri, sonucu ve tarihi de yalnızca bu
+        tarayıcıda saklanır (en fazla 8 kayıt). Kaydettiğiniz hesaplamaları ana sayfadaki hesap köşesinden tek tek silebilirsiniz.
+        Karşılaştırma için sabitlenen sonuçlar yalnızca açık sayfanın belleğinde tutulur. Tarayıcı ayarlarından tüm yerel verileri
+        silebilirsiniz.
       </p>
       <h2>Sunucu kayıtları</h2>
       <p>

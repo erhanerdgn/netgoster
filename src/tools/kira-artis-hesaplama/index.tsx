@@ -43,6 +43,13 @@ function present(v: KiraArtisValues): ResultView {
           };
   return {
     main: { label: 'Yeni aylık kira (azami)', value: tl(r.yeniKira), caption: `Azami artış oranı ${pctValue(r.oran)}` },
+    chart: {
+      title: 'Yeni kiranın dağılımı',
+      items: [
+        { label: 'Mevcut kira', value: v.kira, formatted: tl(v.kira) },
+        { label: 'Artış tutarı', value: r.artis, formatted: tl(r.artis) },
+      ],
+    },
     status,
     rows: [
       { label: 'Mevcut kira', value: tl(v.kira) },

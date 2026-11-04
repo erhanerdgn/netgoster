@@ -24,7 +24,7 @@ pnpm deploy       # build + wrangler deploy
 
 | Yol | İçerik |
 | --- | --- |
-| `.env` (şablon: `.env.example`) | **AdSense yayıncı kimliği, 6 reklam slotu, Search Console/Bing doğrulama kodu** |
+| `.env` (şablon: `.env.example`) | **AdSense yayıncı kimliği, 9 reklam slotu, Search Console/Bing doğrulama kodu** |
 | `src/config/site.ts` | Site adı, alan adı, e-posta; `.env` değerlerini okur |
 | `src/config/parameters-2026.ts` | Tüm yasal/mali parametreler (tarih aralıklı seriler + kaynak + geçerlilik) |
 | `src/config/period.ts` | `valueAt(seri, tarih)` / `periodAt` — dönem seçimi |
@@ -126,30 +126,53 @@ ekleyin (`site-deploy.yml` bunları derlemeye aktarır).
    `https://netgoster.com/sitemap.xml` adresini gönderin. (Alternatif: Cloudflare DNS'e TXT kaydı.) Bing için `VITE_BING_VERIFICATION`.
 2. **AdSense:** Siteyi ekleyin; yayıncı kimliğini (`ca-pub-…`) `VITE_ADSENSE_CLIENT`'a yazın. Bu değer doluyken `ads.txt`
    otomatik üretilir, `google-adsense-account` meta etiketi, Consent Mode varsayılanı ve çerez banner'ı devreye girer.
-   Onay sonrası AdSense → Reklamlar → **Reklam birimine göre** → "Görüntülü reklam" (duyarlı) ile **6 birim** oluşturup
-   kimliklerini `VITE_AD_SLOT_RESULT`, `…_CONTENT`, `…_CONTENT2`, `…_SIDEBAR` (dikey birim seçin), `…_FOOTER`, `…_LIST`
-   değişkenlerine yazın. Boş bırakılan slot çizilmez.
+   Onay sonrası AdSense → Reklamlar → **Reklam birimine göre** → "Görüntülü reklam" (duyarlı) ile **9 birim** oluşturup
+   kimliklerini `VITE_AD_SLOT_RESULT`, `…_CONTENT`, `…_CONTENT2`, `…_SIDEBAR` (dikey birim seçin), `…_FOOTER`, `…_LIST`, `…_HOME`, `…_CATEGORY`, `…_TOP`
+   değişkenlerine yazın. Boş bırakılan slotta sade bir Ads yer tutucusu görünür.
 3. **Gizlilik ve mesajlaşma (CMP):** AB/AEA, Birleşik Krallık ve İsviçre trafiği için Google sertifikalı bir CMP zorunludur.
    AdSense → Gizlilik ve mesajlaşma → **Avrupa düzenlemeleri** mesajını oluşturup yayınlayın; bu mesaj AdSense betiğiyle
    otomatik yüklenir. Türkiye ziyaretçileri için sitenin kendi banner'ı (KVKK) Consent Mode v2 sinyallerini gönderir:
    reklam betiği **ancak seçim yapıldıktan sonra** yüklenir; "Yalnızca zorunlu" seçilirse sinyaller `denied` kalır
    (sınırlı/kişiselleştirilmemiş reklam).
-4. AdSense ID boşken hiçbir reklam kodu yüklenmez; geliştirmede (`pnpm dev`) gri yer tutucular görünür.
+4. AdSense ID boşken hiçbir reklam kodu yüklenmez; geliştirmede (`pnpm dev`) sade Ads yer tutucuları görünür.
 
 ### Reklam yerleşimi (gösterimi artır, kullanıcıyı boğma)
 
 **Yerleri görmek için** herhangi bir sayfanın adresine `?reklam-onizleme` ekleyin (ör. `https://netgoster.com/kredi-hesaplama?reklam-onizleme`):
-her reklam alanı, slot adı ve `.env` değişkeniyle turuncu kesikli kutu olarak görünür. Ekran görüntüleri: `docs/reklam-yerlesimi/`.
-Geliştirmede (`pnpm dev`) kutular her zaman görünür.
+her reklam alanı, ayrılan boyutta sade bir Ads kutusu olarak görünür. Ekran görüntüleri: `docs/reklam-yerlesimi/`.
+Kimlikler girilmediğinde veya reklam henüz dolmadığında kutular geliştirme ve üretimde görünür.
 
 | Sayfa | Birimler (`site.adSlots`) |
 | --- | --- |
-| Araç sayfası | `result` sonucun/ödeme tablosunun altı · `content` içerik arası · `content2` uzun içerikte (7+ bölüm) ikinci içerik arası · `sidebar` masaüstünde içindekilerin altında yapışkan 300×600 · `footer` SSS'den sonra, ilgili araçlardan önce |
-| Ana sayfa | `list` kategoriler ile popüler araçlar arası + popüler araçlardan sonra |
-| Kategori | `list` araç listesinin altı |
+| Araç sayfası | `top` başlıktan önce üst bant · `result` sonuç, karşılaştırma ve ilgili bağlantılardan sonra, uzun ödeme tablosundan önce · `content` içerik arası · `content2` uzun içerikte (7+ bölüm) ikinci içerik arası · `sidebar` masaüstünde içindekilerin altında yapışkan 300×600 · `footer` SSS'den sonra, ilgili araçlardan önce |
+| Ana sayfa | `top` ilk ekranda üst bant · `home` ihtiyaç yollarından sonra · `list` kategori keşfinden sonra |
+| Kategori | `top` başlıktan önce üst bant · `category` araç listesinin hemen altı |
 
-Kurallar: formun üstünde ve form ile sonuç arasında reklam **yok**; her birim sabit yükseklikli (CLS 0), "Reklam" etiketli,
+Kurallar: üst reklam bandı başlık ve formdan önce ayrı bir bölgede; form ile sonuç arasında reklam **yok**; her birim için minimum yükseklik ayrılmış, "Reklam" etiketli,
 kart görünümünde ve ekrana yaklaşınca yüklenir; kenar çubuğu reklamı mobilde hiç çizilmez (gizli reklam değil).
 Önerilen AdSense **Otomatik reklam** ayarları: *Sabit (anchor) reklamlar: AÇIK* (mobilde alt şerit, kapatılabilir),
 *Vignette (tam ekran geçiş): KAPALI* (kullanıcıyı rahatsız eder), *Sayfa içi otomatik reklamlar: KAPALI veya "az"*
 (manuel birimler zaten yerleştirildi), *Arama/çoklu yerleşim: isteğe bağlı*. Yasal sayfalarda ve 404'te reklam yoktur.
+
+
+## UX ve keşif akışı
+
+- Ana sayfa: çalışan indirim hesaplayıcı, dört ihtiyaç yolu, filtrelenebilir araç listesi, kategori keşfi.
+- Araç kartlarında ve araç başlığında favoriye alma; favoriler ana sayfada görünür.
+- Tüm araçlarda sonuçtan sonra bir hesabı sabitleyip girdileri değiştirerek iki senaryoyu karşılaştırma.
+- Açıkça “Sonucu kaydet” seçilirse girdiler ve sonuç bu tarayıcıda saklanır (en fazla 8 kayıt; aynı girdi yinelenmez).
+  Ana sayfadaki hesap köşesinden kayıt yeniden açılabilir veya silinebilir. Karşılaştırma yalnızca sayfanın belleğindedir.
+- Kredi maliyet dağılımı, 12 aylık net maaş grafiği ve kira artış dağılımı hesaplama fonksiyonlarının sayısal çıktısından üretilir.
+- İlgili araçlara kısa bağlantılar sonuç alanının altında; ayrıntılı keşif kartları içerik sonunda bulunur.
+- Yeni reklam kimlikleri: `VITE_AD_SLOT_HOME`, `VITE_AD_SLOT_CATEGORY`. `.env` ve `.env.example` içinde tanımlıdır;
+  GitHub Actions yayını için aynı isimlerle repo Variables girilmelidir. Boş kimlikler reklam isteği oluşturmaz; ayrılan alan sade Ads kutusu olarak kalır.
+- Masaüstü 300×600 reklam için içerik kenar sütunu genişletildi. Mobilde bu birim oluşturulmaz.
+
+
+Reklam alanlarının yer tutucusu köşeli, hafif zeminli ve ortasında yalnızca “Ads” yazan bir kutudur.
+Boyutu mevcut yerleşime göre korunur (yatay: mobil en az 280px / masaüstü 250px; üst bant: mobil 100px / masaüstü 90px; dikey: 300×600).
+AdSense birimi `data-ad-status="filled"` bildirdiğinde yer tutucu kaldırılır ve gerçek reklam görünür.
+Boş/engellenmiş reklamda kutu kalır; reklam isteği için yayıncı ve slot kimliği ile çerez tercihi gerekir.
+`?reklam-onizleme` yalnızca kutuları gösterir, o sayfadaki manuel slotlar reklam isteği göndermez.
+
+Üst bant kimliği `VITE_AD_SLOT_TOP`: `.env`, `.env.example` ve GitHub Actions repo Variables üzerinden yapılandırılır.

@@ -14,6 +14,11 @@ function present(v: Parameters<typeof calculateBrutNet>[0]): ResultView {
   const minNet = Math.min(...aylar.map((a) => a.net));
   return {
     main: { label: 'Ocak ayı net maaş', value: tl(ilk.net), caption: `${v.yil} yılı ortalama net: ${tl(ortalamaNet)}` },
+    chart: {
+      title: '12 ayda net maaşın',
+      kind: 'trend',
+      items: aylar.map((a) => ({ label: monthNames[a.ay - 1], value: a.net, formatted: tl(a.net) })),
+    },
     status:
       minNet < ilk.net
         ? { tone: 'info', text: `Kümülatif matrah vergi dilimini aştıkça net maaş düşer; en düşük aylık net ${tl(minNet)}.` }

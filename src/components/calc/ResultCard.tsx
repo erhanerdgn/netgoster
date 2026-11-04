@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, Info, Link2, MessageCircle, Printer, Spark
 import { toast } from 'sonner';
 import { cn } from 'cn';
 import { Button } from '@/components/ui/button';
+import { ResultVisual, type ResultChart } from './ResultVisual';
 
 export interface ResultRow {
   label: string;
@@ -28,6 +29,7 @@ export interface ResultStatus {
 export interface ResultView {
   main: { label: string; value: string; caption?: string };
   rows?: ResultRow[];
+  chart?: ResultChart;
   status?: ResultStatus;
   table?: ResultTable;
   notes?: string[];
@@ -73,6 +75,7 @@ export function ResultCard({ result, title, emptyHint }: { result: ResultView | 
             {result.main.caption && <p className="mt-1 text-sm text-muted-foreground">{result.main.caption}</p>}
           </div>
           <div className="space-y-4 px-5 py-4">
+            {result.chart && <ResultVisual chart={result.chart} />}
             {result.status && <StatusNote status={result.status} />}
             {result.rows && result.rows.length > 0 && (
               <dl className="divide-y text-[0.9375rem]">

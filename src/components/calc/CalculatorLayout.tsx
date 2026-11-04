@@ -1,3 +1,7 @@
+import { Link } from 'react-router';
+import { ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { FavoriteButton } from '@/components/ToolCard';
+import { ResultWorkbench } from './ResultWorkbench';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { FormProvider, useForm, useWatch, type DefaultValues, type FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -108,6 +112,7 @@ export function CalculatorLayout<In extends FieldValues, Out>({
     const r = schema.safeParse(defaults);
     return r.success ? safeCompute(compute, r.data) : null;
   });
+  const [resultQuery, setResultQuery] = useState(() => toQuery(defaults));
   const values = useWatch({ control: form.control });
   const hydrated = useRef(false);
   // compute/schema her render'da yeni referans olabilir; efekt döngüsüne girmesin diye ref'te tutulur
@@ -129,7 +134,12 @@ export function CalculatorLayout<In extends FieldValues, Out>({
       const r = fns.current.schema.safeParse(values);
       if (r.success) {
         setResult(safeCompute(fns.current.compute, r.data));
-        if (hydrated.current) history.replaceState(history.state, '', `${location.pathname}?${toQuery(values)}`);
+        setResultQuery(toQuery(values));
+        if (hydrated.current) {
+          const query = new URLSearchParams(toQuery(values));
+          if (new URLSearchParams(location.search).has('reklam-onizleme')) query.set('reklam-onizleme', '');
+          history.replaceState(history.state, '', `${location.pathname}?${query}`);
+        }
       } else {
         setResult(null);
       }
@@ -139,6 +149,7 @@ export function CalculatorLayout<In extends FieldValues, Out>({
 
   const onSubmit = form.handleSubmit((data) => {
     setResult(safeCompute(compute, data));
+    setResultQuery(toQuery(form.getValues()));
     if (window.matchMedia('(max-width: 1023px)').matches) {
       document.getElementById('sonuc')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -150,15 +161,23 @@ export function CalculatorLayout<In extends FieldValues, Out>({
   return (
     <TooltipProvider delayDuration={200}>
       <div className="container-page pb-24 lg:pb-12">
+        <AdSlot slot="top" variant="banner" className="my-4" />
         <Breadcrumbs
           items={[
             { name: category.name, path: `/${category.slug}` },
             { name: tool.title, path: `/${tool.slug}` },
           ]}
         />
-        <header className="max-w-3xl">
-          <h1 className="text-[1.875rem] leading-tight font-bold tracking-tight sm:text-4xl">{tool.title}</h1>
-          <p className="mt-2 text-base text-muted-foreground sm:text-lg">{tool.lead}</p>
+        <header className="flex items-start justify-between gap-4">
+          <div className="max-w-3xl">
+            <p className="eyebrow mb-3">{category.name} / ÜCRETSİZ HESAPLAMA</p>
+            <h1 className="text-[1.875rem] leading-tight font-bold tracking-tight sm:text-4xl">{tool.title}</h1>
+            <p className="mt-2 text-base text-muted-foreground sm:text-lg">{tool.lead}</p>
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5" aria-hidden /> Hesaplama tarayıcında yapılır · Kayıt gerekmez
+            </p>
+          </div>
+          <FavoriteButton slug={slug} name={tool.name} />
         </header>
 
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem]">
@@ -167,7 +186,7 @@ export function CalculatorLayout<In extends FieldValues, Out>({
               onSubmit={onSubmit}
               noValidate
               aria-label={`${tool.name} formu`}
-              className="rounded-2xl border bg-card p-5 shadow-soft sm:p-6"
+              className="scroll-mt-20 rounded-2xl border bg-card p-5 shadow-soft sm:p-6"
             >
               {formTop}
               <div className="grid gap-5 sm:grid-cols-2">{children}</div>
@@ -184,6 +203,9 @@ export function CalculatorLayout<In extends FieldValues, Out>({
                   size="lg"
                   onClick={() => {
                     form.reset(defaults);
+                    const initial = schema.safeParse(defaults);
+                    setResult(initial.success ? safeCompute(compute, initial.data) : null);
+                    setResultQuery(toQuery(defaults));
                     history.replaceState(history.state, '', location.pathname);
                   }}
                 >
@@ -198,11 +220,30 @@ export function CalculatorLayout<In extends FieldValues, Out>({
           </div>
         </div>
 
-        {result?.table && <ResultTableView table={result.table} />}
+        <ResultWorkbench key={slug} result={result} slug={slug} title={tool.title} query={resultQuery} />
+
+        {related.length > 0 && (
+          <nav aria-label="Sonraki hesaplaman" className="mt-6 rounded-2xl border bg-accent/40 p-5">
+            <p className="text-sm font-semibold">Bu hesapla birlikte işine yarayabilir</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {related.slice(0, 3).map((t) => (
+                <Link
+                  key={t.slug}
+                  to={`/${t.slug}`}
+                  className="flex min-h-12 items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 text-sm font-medium hover:border-primary hover:text-primary"
+                >
+                  {t.name}
+                  <ArrowUpRight className="size-4 shrink-0" aria-hidden />
+                </Link>
+              ))}
+            </div>
+          </nav>
+        )}
 
         <AdSlot slot="result" />
+        {result?.table && <ResultTableView table={result.table} />}
 
-        <div className="mt-2 space-y-3">
+        <div className="mt-6 space-y-3">
           <WarningNote type={tool.warning} />
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarCheck className="size-4" aria-hidden />
@@ -210,7 +251,7 @@ export function CalculatorLayout<In extends FieldValues, Out>({
           </p>
         </div>
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">
           <article className="min-w-0">
             {content.toc.length > 2 && (
               <nav aria-label="İçindekiler" className="mb-8 rounded-2xl border bg-card p-5 lg:hidden">
@@ -362,7 +403,7 @@ function MobileResultBar({ result }: { result: ResultView | null }) {
       type="button"
       data-no-print
       onClick={() => document.getElementById('sonuc')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-      className="fixed inset-x-3 bottom-3 z-30 flex min-h-14 animate-in items-center justify-between gap-3 rounded-2xl bg-foreground px-4 py-2.5 text-left text-background shadow-lg duration-200 fade-in slide-in-from-bottom-2 lg:hidden"
+      className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 flex min-h-14 animate-in items-center justify-between gap-3 rounded-2xl bg-foreground px-4 py-2.5 text-left text-background shadow-lg duration-200 fade-in slide-in-from-bottom-2 lg:hidden"
     >
       <span className="text-sm opacity-80">{result.main.label}</span>
       <span className="tabular text-lg font-bold">{result.main.value}</span>
