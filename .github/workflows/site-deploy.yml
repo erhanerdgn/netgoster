@@ -1,0 +1,45 @@
+# Site (Cloudflare Worker + statik ön-render sayfalar, netgoster.com): main'e push → lint + test + build + deploy.
+# BluConnect site-deploy.yml ile aynı düzen. GitHub sırları: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID.
+# Reklam/doğrulama kimlikleri: Settings → Secrets and variables → Actions → Variables (VITE_*; bkz. .env.example).
+# Günlük zamanlanmış çalıştırma: parametreler tarih aralıklı olduğundan dönem geçişleri (1 Ocak / 1 Temmuz)
+# kod değişmeden ön-render metinlere yansısın.
+name: Site deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *' # 06:00 TSİ
+  workflow_dispatch:
+
+concurrency:
+  group: site-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          VITE_ADSENSE_CLIENT: ${{ vars.VITE_ADSENSE_CLIENT }}
+          VITE_AD_SLOT_RESULT: ${{ vars.VITE_AD_SLOT_RESULT }}
+          VITE_AD_SLOT_CONTENT: ${{ vars.VITE_AD_SLOT_CONTENT }}
+          VITE_AD_SLOT_CONTENT2: ${{ vars.VITE_AD_SLOT_CONTENT2 }}
+          VITE_AD_SLOT_SIDEBAR: ${{ vars.VITE_AD_SLOT_SIDEBAR }}
+          VITE_AD_SLOT_FOOTER: ${{ vars.VITE_AD_SLOT_FOOTER }}
+          VITE_AD_SLOT_LIST: ${{ vars.VITE_AD_SLOT_LIST }}
+          VITE_GSC_VERIFICATION: ${{ vars.VITE_GSC_VERIFICATION }}
+          VITE_BING_VERIFICATION: ${{ vars.VITE_BING_VERIFICATION }}
