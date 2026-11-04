@@ -86,6 +86,10 @@ Tema; sistem tercihine göre otomatik, header/footer'dan elle değiştirilebilir
 
 ## Cloudflare'e deploy ve netgoster.com'u bağlama
 
+> **Şu anki durum:** netgoster.com henüz kayıtlı değil. Site **https://netgoster.erhan-0b4.workers.dev** adresinde yayında
+> (bu adres `X-Robots-Tag: noindex` ile dizinlenmez). Alan adını alıp Cloudflare'e ekledikten sonra `wrangler.jsonc`
+> içindeki `routes` satırlarını açıp main'e push edin.
+
 1. Cloudflare hesabında **netgoster.com** alanını ekleyin (Websites → Add a site) ve alan adı kayıt firmanızda ad sunucularını
    Cloudflare'in verdiği NS kayıtlarıyla değiştirin. Alan "Active" olana kadar bekleyin.
 2. Yerelde oturum açın: `pnpm exec wrangler login`.

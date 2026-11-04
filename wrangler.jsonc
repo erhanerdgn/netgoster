@@ -12,9 +12,11 @@
     "html_handling": "auto-trailing-slash",
     "run_worker_first": true,
   },
-  "routes": [
-    { "pattern": "netgoster.com", "custom_domain": true },
-    { "pattern": "www.netgoster.com", "custom_domain": true },
-  ],
+  // Alan adı (netgoster.com) satın alınıp Cloudflare'e eklenince ("Active") aşağıdaki iki satırı açın.
+  // O zamana kadar site https://netgoster.erhan-0b4.workers.dev adresinde yayındadır (noindex).
+  // "routes": [
+  //   { "pattern": "netgoster.com", "custom_domain": true },
+  //   { "pattern": "www.netgoster.com", "custom_domain": true },
+  // ],
   "observability": { "enabled": true },
 }

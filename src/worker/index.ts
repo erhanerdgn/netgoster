@@ -21,9 +21,11 @@ const security: Record<string, string> = {
   'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
 };
 
-function withHeaders(res: Response, path: string): Response {
+function withHeaders(res: Response, path: string, host = ''): Response {
   const out = new Response(res.body, res);
   for (const [k, v] of Object.entries(security)) out.headers.set(k, v);
+  // workers.dev / önizleme adresleri asıl alan adının kopyası olarak dizinlenmesin
+  if (host !== site.domain) out.headers.set('X-Robots-Tag', 'noindex, nofollow');
   const type = out.headers.get('Content-Type') ?? '';
   if (path.startsWith('/assets/')) {
     // Vite hash'li dosyalar: içerik değişirse adı değişir → 1 yıl, değişmez
@@ -50,10 +52,10 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
-    if (url.pathname === '/api/kurlar') return withHeaders(await getRates(ctx), url.pathname);
-    if (url.pathname === '/api/altin') return withHeaders(await getGold(ctx), url.pathname);
+    if (url.pathname === '/api/kurlar') return withHeaders(await getRates(ctx), url.pathname, host);
+    if (url.pathname === '/api/altin') return withHeaders(await getGold(ctx), url.pathname, host);
 
     const res = await env.ASSETS.fetch(request);
-    return withHeaders(res, url.pathname);
+    return withHeaders(res, url.pathname, host);
   },
 } satisfies ExportedHandler<Env>;

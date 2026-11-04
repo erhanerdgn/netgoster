@@ -17,6 +17,11 @@ describe('worker', () => {
     const res = await call('https://netgoster.com/kdv-hesaplama');
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
     expect(res.headers.get('cache-control')).toContain('max-age=0');
+    expect(res.headers.get('x-robots-tag')).toBeNull();
+  });
+  it('workers.dev adresi noindex', async () => {
+    const res = await call('https://netgoster.erhan-0b4.workers.dev/kdv-hesaplama');
+    expect(res.headers.get('x-robots-tag')).toContain('noindex');
   });
   it('TCMB XML ayrıştırma (JPY Unit=100, boş efektif)', () => {
     const xml = `<Tarih_Date Tarih="03.11.2026" Date="11/03/2026" Bulten_No="2026/206">
