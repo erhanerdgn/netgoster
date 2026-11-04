@@ -1,0 +1,212 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Inter (OFL, src/assets/fonts/LICENSE-Inter.txt) — self-host, TEK dosya: Latin + Türkçe (ğ ş ı İ) + ₺ € ve tipografik
+ * işaretler; wght 400–700 değişken, opsz=14 sabit (scripts/README: font alt kümeleme). 133 KB → 42 KB.
+ */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  src: url('./assets/fonts/inter-tr-var.woff2') format('woff2');
+}
+/* Ölçüleri Inter'e eşitlenmiş yedek: font yüklenirken metin kaymaz (CLS ≈ 0) */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
+/*
+ * NetGöster tema token'ları (shadcn yaklaşımı). Görsel dil BluConnect'ten:
+ * serin açık gri zemin + beyaz kartlar, derin mavi eylem rengi, gece derin lacivert.
+ * Sonuçlar için tek vurgu rengi: --result (zümrüt yeşili).
+ */
+:root {
+  --radius: 0.75rem;
+  --background: #f4f7fb;
+  --foreground: #132a42;
+  --card: #ffffff;
+  --card-foreground: #132a42;
+  --popover: #ffffff;
+  --popover-foreground: #132a42;
+  --primary: #1663a3;
+  --primary-foreground: #ffffff;
+  --secondary: #e8eef5;
+  --secondary-foreground: #132a42;
+  --muted: #eef2f7;
+  --muted-foreground: #556b82;
+  --accent: #e6f0f9;
+  --accent-foreground: #0f4c80;
+  --destructive: #c23b31;
+  --border: #dce4ee;
+  --input: #cfd9e5;
+  --ring: #1663a3;
+  --result: #0b7a55;
+  --result-soft: #e3f4ed;
+  --result-foreground: #ffffff;
+  --warning: #9a5b00;
+  --warning-soft: #fdf3e1;
+  --shadow-soft: 0 1px 2px rgb(19 42 66 / 0.04), 0 4px 16px rgb(19 42 66 / 0.05);
+}
+
+.dark {
+  --background: #0e1a28;
+  --foreground: #eef4fa;
+  --card: #15253a;
+  --card-foreground: #eef4fa;
+  --popover: #15253a;
+  --popover-foreground: #eef4fa;
+  --primary: #6fb3ec;
+  --primary-foreground: #0b1a2a;
+  --secondary: #1f3550;
+  --secondary-foreground: #eef4fa;
+  --muted: #1a2d44;
+  --muted-foreground: #a2b4c7;
+  --accent: #1d3653;
+  --accent-foreground: #cfe6fa;
+  --destructive: #f07a70;
+  --border: #253c58;
+  --input: #2f4867;
+  --ring: #6fb3ec;
+  --result: #4fd1a0;
+  --result-soft: #123a30;
+  --result-foreground: #062019;
+  --warning: #f0b95c;
+  --warning-soft: #3a2c12;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.2), 0 4px 16px rgb(0 0 0 / 0.18);
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-result: var(--result);
+  --color-result-soft: var(--result-soft);
+  --color-result-foreground: var(--result-foreground);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --shadow-soft: var(--shadow-soft);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+}
+
+/* Uzun içerik: okunabilir tipografi (typography eklentisi yerine hafif el yazımı) */
+@utility prose-ng {
+  @apply max-w-none text-[1.0625rem] leading-8 text-foreground/90;
+  & h2 {
+    @apply mt-10 mb-3 scroll-mt-24 text-2xl font-semibold tracking-tight text-foreground;
+  }
+  & h3 {
+    @apply mt-7 mb-2 scroll-mt-24 text-lg font-semibold text-foreground;
+  }
+  & p {
+    @apply my-4;
+  }
+  & ul {
+    @apply my-4 list-disc space-y-1.5 pl-6;
+  }
+  & ol {
+    @apply my-4 list-decimal space-y-1.5 pl-6;
+  }
+  & a {
+    @apply font-medium text-primary underline underline-offset-4;
+  }
+  & strong {
+    @apply font-semibold text-foreground;
+  }
+  & code {
+    @apply rounded bg-muted px-1.5 py-0.5 text-[0.9em];
+  }
+  & blockquote {
+    @apply my-5 rounded-lg border-l-4 border-primary bg-accent/60 px-4 py-3 text-foreground;
+  }
+  & table {
+    @apply my-5 block w-full overflow-x-auto text-sm tabular-nums;
+  }
+  & th {
+    @apply border-b border-border bg-muted px-3 py-2 text-left font-semibold whitespace-nowrap;
+  }
+  & td {
+    @apply border-b border-border px-3 py-2 whitespace-nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  [data-no-print] {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

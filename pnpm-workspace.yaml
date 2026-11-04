@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: true
+  workerd: true
+minimumReleaseAgeExclude:
+  - '@cloudflare/workers-types@5.20261104.1'
+  - '@hookform/resolvers@7.0.2'
+  - lucide-react@1.68.0
+  - miniflare@5.20261103.0-beta
+  - wrangler@4.157.0

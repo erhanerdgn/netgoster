@@ -1,0 +1,51 @@
+# Her push'ta ve HER GÜN 03:00 UTC'de (06:00 TSİ) yeniden derleyip yayınlar.
+# Neden günlük? Parametreler tarih aralıklı serilerdir; ön-render edilen metinler (ör. "geçerli kıdem tavanı",
+# yıl, örnek hesaplar) derleme gününe göre üretilir. Günlük derleme, 1 Ocak / 1 Temmuz gibi dönem geçişlerinin
+# kod değişikliği olmadan sayfalara yansımasını sağlar. (Tarayıcıdaki hesaplamalar zaten anlık tarihe göre çalışır.)
+name: Deploy
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Aynı anda tek deploy; yeni push gelirse sıradaki bekler
+    concurrency: { group: deploy-production, cancel-in-progress: false }
+    env:
+      HAS_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+        env:
+          # Reklam/doğrulama kimlikleri: repo Settings → Secrets and variables → Actions → Variables
+          VITE_ADSENSE_CLIENT: ${{ vars.VITE_ADSENSE_CLIENT }}
+          VITE_AD_SLOT_RESULT: ${{ vars.VITE_AD_SLOT_RESULT }}
+          VITE_AD_SLOT_CONTENT: ${{ vars.VITE_AD_SLOT_CONTENT }}
+          VITE_AD_SLOT_CONTENT2: ${{ vars.VITE_AD_SLOT_CONTENT2 }}
+          VITE_AD_SLOT_SIDEBAR: ${{ vars.VITE_AD_SLOT_SIDEBAR }}
+          VITE_AD_SLOT_FOOTER: ${{ vars.VITE_AD_SLOT_FOOTER }}
+          VITE_AD_SLOT_LIST: ${{ vars.VITE_AD_SLOT_LIST }}
+          VITE_GSC_VERIFICATION: ${{ vars.VITE_GSC_VERIFICATION }}
+          VITE_BING_VERIFICATION: ${{ vars.VITE_BING_VERIFICATION }}
+      - name: Cloudflare'e yayınla
+        if: env.HAS_CF_TOKEN == 'true'
+        run: pnpm exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Token yoksa uyar
+        if: env.HAS_CF_TOKEN != 'true'
+        run: echo "::warning::CLOUDFLARE_API_TOKEN secret'ı tanımlı değil — derleme ve testler geçti, yayın atlandı. README > Cloudflare'e deploy."

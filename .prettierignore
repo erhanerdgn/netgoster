@@ -1,0 +1,6 @@
+dist
+dist-ssr
+.wrangler
+pnpm-lock.yaml
+src/components/ui
+*.md
