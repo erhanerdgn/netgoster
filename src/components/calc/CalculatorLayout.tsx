@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { FavoriteButton } from '@/components/ToolCard';
 import { ResultWorkbench } from './ResultWorkbench';
+import { FormColumnAd } from './FormColumnAd';
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { FormProvider, useForm, useWatch, type DefaultValues, type FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -115,6 +116,8 @@ export function CalculatorLayout<In extends FieldValues, Out>({
   const [resultQuery, setResultQuery] = useState(() => toQuery(defaults));
   const values = useWatch({ control: form.control });
   const hydrated = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
   // compute/schema her render'da yeni referans olabilir; efekt döngüsüne girmesin diye ref'te tutulur
   const fns = useRef({ compute, schema });
   fns.current = { compute, schema };
@@ -181,40 +184,44 @@ export function CalculatorLayout<In extends FieldValues, Out>({
         </header>
 
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem]">
-          <FormProvider {...form}>
-            <form
-              onSubmit={onSubmit}
-              noValidate
-              aria-label={`${tool.name} formu`}
-              className="scroll-mt-20 rounded-2xl border bg-card p-5 shadow-soft sm:p-6"
-            >
-              {formTop}
-              <div className="grid gap-5 sm:grid-cols-2">{children}</div>
-              <div className="mt-6 flex flex-wrap gap-2 border-t pt-5" data-no-print>
-                <Button type="submit" size="lg" className="flex-1 sm:flex-none">
-                  <Calculator aria-hidden /> Hesapla
-                </Button>
-                <Button type="button" variant="secondary" size="lg" onClick={() => form.reset(example)}>
-                  <WandSparkles aria-hidden /> Örnek değerlerle doldur
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="lg"
-                  onClick={() => {
-                    form.reset(defaults);
-                    const initial = schema.safeParse(defaults);
-                    setResult(initial.success ? safeCompute(compute, initial.data) : null);
-                    setResultQuery(toQuery(defaults));
-                    history.replaceState(history.state, '', location.pathname);
-                  }}
-                >
-                  <RotateCcw aria-hidden /> Sıfırla
-                </Button>
-              </div>
-            </form>
-          </FormProvider>
-          <div className="space-y-4 lg:sticky lg:top-20">
+          <div className="flex min-w-0 flex-col gap-6">
+            <FormProvider {...form}>
+              <form
+                ref={formRef}
+                onSubmit={onSubmit}
+                noValidate
+                aria-label={`${tool.name} formu`}
+                className="scroll-mt-20 rounded-2xl border bg-card p-5 shadow-soft sm:p-6"
+              >
+                {formTop}
+                <div className="grid gap-5 sm:grid-cols-2">{children}</div>
+                <div className="mt-6 flex flex-wrap gap-2 border-t pt-5" data-no-print>
+                  <Button type="submit" size="lg" className="flex-1 sm:flex-none">
+                    <Calculator aria-hidden /> Hesapla
+                  </Button>
+                  <Button type="button" variant="secondary" size="lg" onClick={() => form.reset(example)}>
+                    <WandSparkles aria-hidden /> Örnek değerlerle doldur
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="lg"
+                    onClick={() => {
+                      form.reset(defaults);
+                      const initial = schema.safeParse(defaults);
+                      setResult(initial.success ? safeCompute(compute, initial.data) : null);
+                      setResultQuery(toQuery(defaults));
+                      history.replaceState(history.state, '', location.pathname);
+                    }}
+                  >
+                    <RotateCcw aria-hidden /> Sıfırla
+                  </Button>
+                </div>
+              </form>
+            </FormProvider>
+            <FormColumnAd formRef={formRef} resultRef={resultRef} />
+          </div>
+          <div ref={resultRef} className="space-y-4 lg:sticky lg:top-20">
             <ResultCard result={result} title={tool.title} emptyHint={emptyHint} />
             {result?.extra}
           </div>

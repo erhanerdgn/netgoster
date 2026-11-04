@@ -25,6 +25,8 @@ export const site = {
    * çubuğu (yapışkan) → sayfa sonu. Ana sayfa/kategori: bölümler arası. Form ile sonuç arasında ASLA reklam yok.
    */
   adSlots: {
+    /** Masaüstünde formun altında, uzun sonuç kartının solundaki boşlukta */
+    form: e('VITE_AD_SLOT_FORM'),
     /** Ana sayfa, kategori ve araçlarda başlıktan önce yatay bant */
     top: e('VITE_AD_SLOT_TOP'),
     /** Sonuç ve devam aksiyonlarından sonra, uzun tablodan önce (en yüksek görünürlük) */

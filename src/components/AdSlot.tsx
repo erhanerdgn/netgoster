@@ -7,6 +7,7 @@ export type SlotName = keyof typeof site.adSlots;
 
 const slotLabels: Record<SlotName, string> = {
   top: 'Sayfa üstü',
+  form: 'Form altı',
   result: 'Sonucun altı',
   content: 'İçerik arası',
   content2: 'İçerik arası (2)',

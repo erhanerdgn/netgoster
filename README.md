@@ -24,7 +24,7 @@ pnpm deploy       # build + wrangler deploy
 
 | Yol | İçerik |
 | --- | --- |
-| `.env` (şablon: `.env.example`) | **AdSense yayıncı kimliği, 9 reklam slotu, Search Console/Bing doğrulama kodu** |
+| `.env` (şablon: `.env.example`) | **AdSense yayıncı kimliği, 10 reklam slotu, Search Console/Bing doğrulama kodu** |
 | `src/config/site.ts` | Site adı, alan adı, e-posta; `.env` değerlerini okur |
 | `src/config/parameters-2026.ts` | Tüm yasal/mali parametreler (tarih aralıklı seriler + kaynak + geçerlilik) |
 | `src/config/period.ts` | `valueAt(seri, tarih)` / `periodAt` — dönem seçimi |
@@ -126,8 +126,8 @@ ekleyin (`site-deploy.yml` bunları derlemeye aktarır).
    `https://netgoster.com/sitemap.xml` adresini gönderin. (Alternatif: Cloudflare DNS'e TXT kaydı.) Bing için `VITE_BING_VERIFICATION`.
 2. **AdSense:** Siteyi ekleyin; yayıncı kimliğini (`ca-pub-…`) `VITE_ADSENSE_CLIENT`'a yazın. Bu değer doluyken `ads.txt`
    otomatik üretilir, `google-adsense-account` meta etiketi, Consent Mode varsayılanı ve çerez banner'ı devreye girer.
-   Onay sonrası AdSense → Reklamlar → **Reklam birimine göre** → "Görüntülü reklam" (duyarlı) ile **9 birim** oluşturup
-   kimliklerini `VITE_AD_SLOT_RESULT`, `…_CONTENT`, `…_CONTENT2`, `…_SIDEBAR` (dikey birim seçin), `…_FOOTER`, `…_LIST`, `…_HOME`, `…_CATEGORY`, `…_TOP`
+   Onay sonrası AdSense → Reklamlar → **Reklam birimine göre** → "Görüntülü reklam" (duyarlı) ile **10 birim** oluşturup
+   kimliklerini `VITE_AD_SLOT_RESULT`, `…_CONTENT`, `…_CONTENT2`, `…_SIDEBAR` (dikey birim seçin), `…_FOOTER`, `…_LIST`, `…_HOME`, `…_CATEGORY`, `…_TOP`, `…_FORM`
    değişkenlerine yazın. Boş bırakılan slotta sade bir Ads yer tutucusu görünür.
 3. **Gizlilik ve mesajlaşma (CMP):** AB/AEA, Birleşik Krallık ve İsviçre trafiği için Google sertifikalı bir CMP zorunludur.
    AdSense → Gizlilik ve mesajlaşma → **Avrupa düzenlemeleri** mesajını oluşturup yayınlayın; bu mesaj AdSense betiğiyle
@@ -144,7 +144,7 @@ Kimlikler girilmediğinde veya reklam henüz dolmadığında kutular geliştirme
 
 | Sayfa | Birimler (`site.adSlots`) |
 | --- | --- |
-| Araç sayfası | `top` başlıktan önce üst bant · `result` sonuç, karşılaştırma ve ilgili bağlantılardan sonra, uzun ödeme tablosundan önce · `content` içerik arası · `content2` uzun içerikte (7+ bölüm) ikinci içerik arası · `sidebar` masaüstünde içindekilerin altında yapışkan 300×600 · `footer` SSS'den sonra, ilgili araçlardan önce |
+| Araç sayfası | `form` masaüstünde uzun sonuç kartının solundaki boşlukta · `top` başlıktan önce üst bant · `result` sonuç, karşılaştırma ve ilgili bağlantılardan sonra, uzun ödeme tablosundan önce · `content` içerik arası · `content2` uzun içerikte (7+ bölüm) ikinci içerik arası · `sidebar` masaüstünde içindekilerin altında yapışkan 300×600 · `footer` SSS'den sonra, ilgili araçlardan önce |
 | Ana sayfa | `top` ilk ekranda üst bant · `home` ihtiyaç yollarından sonra · `list` kategori keşfinden sonra |
 | Kategori | `top` başlıktan önce üst bant · `category` araç listesinin hemen altı |
 
@@ -176,3 +176,6 @@ Boş/engellenmiş reklamda kutu kalır; reklam isteği için yayıncı ve slot k
 `?reklam-onizleme` yalnızca kutuları gösterir, o sayfadaki manuel slotlar reklam isteği göndermez.
 
 Üst bant kimliği `VITE_AD_SLOT_TOP`: `.env`, `.env.example` ve GitHub Actions repo Variables üzerinden yapılandırılır.
+
+`VITE_AD_SLOT_FORM`, masaüstünde sonuç sütunu formdan en az 274px uzunsa formun altında gösterilir.
+Form ve sonuç boyları değiştiğinde yerleşim yeniden ölçülür; mobilde bu birim oluşturulmaz.

@@ -40,6 +40,7 @@ jobs:
           VITE_AD_SLOT_CONTENT2: ${{ vars.VITE_AD_SLOT_CONTENT2 }}
           VITE_AD_SLOT_SIDEBAR: ${{ vars.VITE_AD_SLOT_SIDEBAR }}
           VITE_AD_SLOT_FOOTER: ${{ vars.VITE_AD_SLOT_FOOTER }}
+          VITE_AD_SLOT_FORM: ${{ vars.VITE_AD_SLOT_FORM }}
           VITE_AD_SLOT_TOP: ${{ vars.VITE_AD_SLOT_TOP }}
           VITE_AD_SLOT_HOME: ${{ vars.VITE_AD_SLOT_HOME }}
           VITE_AD_SLOT_CATEGORY: ${{ vars.VITE_AD_SLOT_CATEGORY }}
