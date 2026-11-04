@@ -63,7 +63,7 @@ görmediğiniz değeri `verified: false` + `// TODO: DOĞRULA` ile işaretleyin.
 | Her yıl | Resmi tatiller (dini bayramlar) | `src/config/tatiller.ts` | Diyanet / Resmî Gazete |
 
 Güncelledikten sonra: `pnpm test` (beklenen değerleri değişen testleri güncelleyin) → `pnpm build` → deploy.
-GitHub Actions iş akışı (`.github/workflows/deploy.yml`) her gün yeniden derleyip yayınlar; böylece 1 Ocak / 1 Temmuz
+GitHub Actions iş akışı (`.github/workflows/site-deploy.yml`, BluConnect ile aynı düzen) her gün yeniden derleyip yayınlar; böylece 1 Ocak / 1 Temmuz
 gibi dönem geçişleri, kod değişikliği olmadan ön-render metinlere de yansır.
 
 ## Yeni araç ekleme
@@ -115,7 +115,7 @@ cp .env.example .env   # sonra değerleri doldurun ve pnpm deploy
 ```
 
 GitHub Actions ile yayınlıyorsanız aynı adları repo **Settings → Secrets and variables → Actions → Variables** altına
-ekleyin (`deploy.yml` bunları derlemeye aktarır).
+ekleyin (`site-deploy.yml` bunları derlemeye aktarır).
 
 1. **Search Console:** https://search.google.com/search-console → URL ön eki `https://netgoster.com` → "HTML etiketi"
    yöntemi → `content="..."` değerini `VITE_GSC_VERIFICATION`'a yazın, deploy edin, "Doğrula"ya basın. Ardından
