@@ -59,8 +59,13 @@ await writePage('/404', '404.html');
 console.log(`✓ ${routes.length} sayfa + 404 ön-render edildi (${(total / 1024).toFixed(0)} KB HTML)`);
 
 // sitemap.xml — yalnızca dizine eklenecek sayfalar
-const today = new Date().toISOString().slice(0, 10);
-const lastmod = (route: string) => tools.find((t: { slug: string; updated: string }) => `/${t.slug}` === route)?.updated ?? today;
+// Günlük build'de tarih oynamasın: araç dışı sayfalar en son güncellenen aracın tarihini alır.
+const latest = (tools as { updated: string }[])
+  .map((t) => t.updated)
+  .sort()
+  .at(-1)!;
+const lastmod = (route: string) =>
+  tools.find((t: { slug: string; updated: string }) => `/${t.slug}` === route)?.updated ?? latest;
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${(routes as string[])
