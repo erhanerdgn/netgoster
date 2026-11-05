@@ -25,10 +25,22 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t">
-        <p className="container-page py-5 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {site.name} · {site.domain}. Sonuçlar bilgilendirme amaçlıdır; resmi işlemlerde ilgili
-          kuruma danışın.
-        </p>
+        <div className="container-page flex flex-col gap-2 py-5 text-xs text-muted-foreground md:flex-row md:justify-between">
+          <p>
+            © {new Date().getFullYear()} {site.name} · {site.domain}. Sonuçlar bilgilendirme amaçlıdır; resmi işlemlerde ilgili
+            kuruma danışın.
+          </p>
+          <p>
+            Diğer projelerimiz:{' '}
+            <a href="https://www.beyyine.app/" className="underline-offset-2 hover:text-primary hover:underline">
+              Beyyine
+            </a>{' '}
+            ·{' '}
+            <a href="https://www.bluconnect.app/" className="underline-offset-2 hover:text-primary hover:underline">
+              BluConnect
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );
