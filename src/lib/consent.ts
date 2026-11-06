@@ -33,9 +33,12 @@ declare global {
   }
 }
 
-function gtag(...args: unknown[]) {
+// gtag.js yalnız `arguments` nesnesini komut olarak işler; dizi push'u (rest parametresi) sessizce yok sayılır.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function gtag(..._args: unknown[]) {
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(args);
+  // eslint-disable-next-line prefer-rest-params
+  window.dataLayer.push(arguments);
 }
 
 let scriptLoaded = false;
