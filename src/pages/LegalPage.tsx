@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { site } from '@/config/site';
 import { staticPages } from '@/lib/seo';
 
-const updated = '4 Kasım 2026';
+const updated = '6 Kasım 2026';
 const mail = <a href={`mailto:${site.email}`}>{site.email}</a>;
 
 const pages: Record<string, ReactNode> = {
@@ -82,6 +82,12 @@ const pages: Record<string, ReactNode> = {
         Barındırma hizmet sağlayıcımız (Cloudflare) güvenlik ve performans amacıyla IP adresi, tarayıcı türü ve istek zamanı gibi
         teknik kayıtları kısa süreliğine işleyebilir.
       </p>
+      <h2>Ziyaret istatistikleri</h2>
+      <p>
+        Sitenin nasıl kullanıldığını anlamak için Google Analytics 4 kullanırız: ziyaret edilen sayfa, yönlendiren site, cihaz
+        türü ve yaklaşık konum gibi bilgiler toplu ve anonim olarak raporlanır; IP adresi kısaltılır. Analitik çerezleri yalnızca
+        çerez tercihinde “Kabul et” derseniz yazılır; aksi halde Google’a çerezsiz, kimliksiz sayım bilgisi gider.
+      </p>
       <h2>Reklamlar ve üçüncü taraflar</h2>
       <p>
         Sitemizde Google AdSense reklamları gösterilebilir. Google ve iş ortakları, onay vermeniz halinde, ilgi alanına dayalı
@@ -120,6 +126,10 @@ const pages: Record<string, ReactNode> = {
         <li>
           <strong>Reklam çerezleri (onaya bağlı):</strong> Google AdSense ve iş ortaklarının reklamları ölçmek ve kişiselleştirmek
           için kullandığı çerezler. Yalnızca “Kabul et” seçeneğini işaretlerseniz etkinleşir.
+        </li>
+        <li>
+          <strong>Analitik çerezleri (onaya bağlı):</strong> Google Analytics 4’ün ziyaretleri anonim olarak ölçmek için
+          kullandığı çerezler (_ga, _ga_*). Onay vermezseniz yazılmaz; yalnızca çerezsiz sayım gönderilir.
         </li>
       </ul>
       <h2>Tercihlerinizi yönetme</h2>
@@ -172,18 +182,18 @@ const pages: Record<string, ReactNode> = {
         <li>Hesaplama formlarına girilen değerler kişisel veri olarak sunucularımızda işlenmez; yalnızca cihazınızda işlenir.</li>
         <li>E-postayla bize ulaşırsanız: ad, e-posta adresi ve mesaj içeriği.</li>
         <li>İşlem güvenliği: IP adresi, tarayıcı bilgisi ve erişim zamanı (barındırma sağlayıcısı kayıtları).</li>
-        <li>Onay vermeniz halinde: reklam çerezleri aracılığıyla çevrim içi tanımlayıcılar.</li>
+        <li>Onay vermeniz halinde: reklam ve analitik çerezleri aracılığıyla çevrim içi tanımlayıcılar.</li>
       </ul>
       <h2>İşleme amaçları ve hukuki sebepler</h2>
       <ul>
         <li>Taleplerinizin yanıtlanması — KVKK m. 5/2-c ve f (sözleşme/meşru menfaat).</li>
         <li>Bilgi güvenliğinin sağlanması — KVKK m. 5/2-ç ve f (hukuki yükümlülük/meşru menfaat).</li>
-        <li>Kişiselleştirilmiş reklam — KVKK m. 5/1 (açık rıza).</li>
+        <li>Kişiselleştirilmiş reklam ve çerezli ziyaret istatistikleri — KVKK m. 5/1 (açık rıza).</li>
       </ul>
       <h2>Aktarım</h2>
       <p>
-        Veriler; barındırma (Cloudflare, Inc.) ve onay vermeniz halinde reklam (Google Ireland Ltd./Google LLC) hizmet
-        sağlayıcılarına, KVKK m. 9’daki usullere uygun olarak yurt dışına aktarılabilir.
+        Veriler; barındırma (Cloudflare, Inc.), ziyaret istatistikleri ve onay vermeniz halinde reklam (Google Ireland Ltd./Google
+        LLC) hizmet sağlayıcılarına, KVKK m. 9’daki usullere uygun olarak yurt dışına aktarılabilir.
       </p>
       <h2>Haklarınız (KVKK m. 11)</h2>
       <p>

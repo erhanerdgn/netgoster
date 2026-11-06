@@ -19,6 +19,8 @@ export const site = {
   themeColor: '#1663a3',
   /** Google AdSense yayıncı kimliği (ca-pub-XXXXXXXXXXXXXXXX). Boşsa HİÇBİR reklam kodu yüklenmez. */
   adsenseClient: e('VITE_ADSENSE_CLIENT'),
+  /** Google Analytics 4 ölçüm kimliği (G-XXXXXXXXXX). Boşsa analitik yüklenmez. */
+  gaId: e('VITE_GA_ID'),
   /**
    * Reklam birimi (slot) kimlikleri — AdSense > Reklamlar > Reklam birimine göre > Görüntülü (duyarlı).
    * Kimliği boş birimler sade Ads kutusu olarak kalır. Yerleşim (araç sayfası): sonucun altı → içerik arası (1–2) → masaüstü kenar

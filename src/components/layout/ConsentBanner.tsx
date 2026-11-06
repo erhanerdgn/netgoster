@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Cookie } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { adsEnabled, getConsent, initConsent, setConsent } from '@/lib/consent';
+import { consentNeeded, getConsent, initConsent, setConsent } from '@/lib/consent';
 
-/** Rahatsız etmeyen alt kart. Yalnızca reklam açıksa ve kullanıcı henüz seçim yapmadıysa görünür. */
+/** Rahatsız etmeyen alt kart. Yalnızca reklam/analitik açıksa ve kullanıcı henüz seçim yapmadıysa görünür. */
 export function ConsentBanner() {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    if (!adsEnabled) return;
+    if (!consentNeeded) return;
     initConsent();
     setShow(getConsent() === null);
     const open = () => setShow(true);
@@ -34,8 +34,8 @@ export function ConsentBanner() {
             Çerez tercihiniz
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Siteyi ücretsiz sunabilmek için reklam gösteriyoruz. Kişiselleştirilmiş reklam çerezlerine izin verebilir veya
-            yalnızca zorunlu çerezlerle devam edebilirsiniz.{' '}
+            Siteyi ücretsiz sunabilmek için reklam gösteriyor, ziyaretleri ölçmek için Google Analytics kullanıyoruz. Reklam ve
+            analitik çerezlerine izin verebilir veya yalnızca zorunlu çerezlerle devam edebilirsiniz.{' '}
             <Link to="/cerez-politikasi" className="text-primary underline underline-offset-4">
               Ayrıntılar
             </Link>
@@ -53,7 +53,7 @@ export function ConsentBanner() {
 }
 
 export function CookieSettingsLink() {
-  if (!adsEnabled) return null;
+  if (!consentNeeded) return null;
   return (
     <button
       type="button"

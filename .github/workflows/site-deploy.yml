@@ -45,5 +45,6 @@ jobs:
           VITE_AD_SLOT_HOME: ${{ vars.VITE_AD_SLOT_HOME }}
           VITE_AD_SLOT_CATEGORY: ${{ vars.VITE_AD_SLOT_CATEGORY }}
           VITE_AD_SLOT_LIST: ${{ vars.VITE_AD_SLOT_LIST }}
+          VITE_GA_ID: ${{ vars.VITE_GA_ID }}
           VITE_GSC_VERIFICATION: ${{ vars.VITE_GSC_VERIFICATION }}
           VITE_BING_VERIFICATION: ${{ vars.VITE_BING_VERIFICATION }}

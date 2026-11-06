@@ -25,9 +25,9 @@ function commonHead(): string {
   if (site.searchConsoleVerification)
     tags.push(`<meta name="google-site-verification" content="${site.searchConsoleVerification}">`);
   if (site.bingVerification) tags.push(`<meta name="msvalidate.01" content="${site.bingVerification}">`);
+  if (site.adsenseClient || site.gaId) tags.push(`<script>${consentDefaultScript}</script>`);
   if (site.adsenseClient) {
     tags.push(`<meta name="google-adsense-account" content="${site.adsenseClient}">`);
-    tags.push(`<script>${consentDefaultScript}</script>`);
     tags.push('<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>');
   }
   return tags.join('\n    ');

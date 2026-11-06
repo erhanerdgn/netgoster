@@ -3,7 +3,10 @@ import { readJSON, writeJSON } from './storage';
 
 /**
  * Çerez onayı + Google Consent Mode v2.
- * - AdSense kimliği boşsa hiçbir şey yüklenmez, banner da gösterilmez.
+ * - AdSense ve GA kimliği boşsa hiçbir şey yüklenmez, banner da gösterilmez.
+ * - GA4 onaydan bağımsız yüklenir (ilk etkileşimde ya da 8 sn sonra; Lighthouse ölçümünü etkilemez); onay yoksa
+ *   Consent Mode gereği çerez yazmaz, yalnız çerezsiz anonim sayım gönderir. SPA sayfa geçişlerini GA4'ün
+ *   geliştirilmiş ölçümü (tarayıcı geçmişi olayları) kendisi sayar.
  * - Kullanıcı seçim yapana kadar reklam betiği YÜKLENMEZ.
  * - "Kabul" → kişiselleştirilmiş reklam; "Reddet" → consent mode 'denied' ile çerezsiz/sınırlı reklam.
  * - AB/EEA/UK trafiği için AdSense > Gizlilik ve mesajlaşma'dan Google sertifikalı CMP (GDPR mesajı)
@@ -14,6 +17,9 @@ const KEY = 'ng-consent';
 const listeners = new Set<(c: Consent) => void>();
 
 export const adsEnabled = site.adsenseClient.length > 0;
+export const gaEnabled = site.gaId.length > 0;
+/** Çerez bandı ve Consent Mode varsayılanı gerekiyor mu */
+export const consentNeeded = adsEnabled || gaEnabled;
 
 export function getConsent(): Consent | null {
   return readJSON<Consent | null>(KEY, null);
@@ -43,6 +49,30 @@ function loadAdsense() {
   document.head.appendChild(s);
 }
 
+let gaLoaded = false;
+function loadAnalytics() {
+  if (!gaEnabled || gaLoaded) return;
+  gaLoaded = true;
+  gtag('js', new Date());
+  gtag('config', site.gaId, { anonymize_ip: true });
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(site.gaId)}`;
+  document.head.appendChild(s);
+}
+
+/** GA'yı kritik yoldan çıkar: ilk kullanıcı etkileşiminde ya da 8 sn sonra yükle. */
+function scheduleAnalytics() {
+  if (!gaEnabled) return;
+  const events = ['pointerdown', 'keydown', 'touchstart', 'scroll'] as const;
+  const go = () => {
+    events.forEach((e) => window.removeEventListener(e, go));
+    loadAnalytics();
+  };
+  events.forEach((e) => window.addEventListener(e, go, { once: true, passive: true }));
+  window.setTimeout(go, 8000);
+}
+
 export function setConsent(c: Consent) {
   writeJSON(KEY, c);
   const v = c === 'granted' ? 'granted' : 'denied';
@@ -53,7 +83,8 @@ export function setConsent(c: Consent) {
 
 /** Sayfa açılışında: daha önce seçim yapıldıysa betiği yükle. */
 export function initConsent() {
-  if (!adsEnabled) return;
+  if (!consentNeeded) return;
+  scheduleAnalytics();
   const c = getConsent();
   if (c) {
     const v = c === 'granted' ? 'granted' : 'denied';
@@ -67,5 +98,5 @@ export function onConsent(cb: (c: Consent) => void) {
   return () => listeners.delete(cb);
 }
 
-/** <head> içine (yalnız reklam açıksa) gömülen varsayılan: her şey reddedilmiş. */
+/** <head> içine (reklam ya da analitik açıksa) gömülen varsayılan: her şey reddedilmiş. */
 export const consentDefaultScript = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});`;
