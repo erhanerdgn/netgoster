@@ -18,6 +18,7 @@ import { addDays, dayNumber } from '@/calculators/common';
 import { todayISO } from '@/config/period';
 import { dateTR, num, pct, tl } from '@/lib/format';
 import { useLive } from '@/lib/liveData';
+import { norm } from '@/lib/search';
 import content from './content.md';
 
 const today = todayISO();
@@ -130,7 +131,7 @@ interface FonFiyat {
 }
 
 /**
- * TEFAS'tan fon seçimi: kod ya da adla arama (tarayıcının yerleşik öneri listesi), seçilince stopaj grubu
+ * TEFAS'tan fon seçimi: kod ya da adla arama (alan genişliğinde açılır liste, klavyeyle gezilebilir), seçilince stopaj grubu
  * unvandan bulunur, alış/satış tarihindeki birim pay fiyatları doldurulur. Veri gelmezse elle giriş sürer.
  */
 function FonSecici() {
@@ -142,8 +143,28 @@ function FonSecici() {
   const [metin, setMetin] = useState(fon ?? '');
   const [seri, setSeri] = useState<FonFiyat | null>(null);
   const [durum, setDurum] = useState<'bos' | 'yukleniyor' | 'tamam' | 'hata'>('bos');
+  const [acik, setAcik] = useState(false);
+  const [aktif, setAktif] = useState(0);
 
   const unvanlar = useMemo(() => new Map(liste.data?.fonlar ?? []), [liste.data]);
+  const aranabilir = useMemo(
+    () => (liste.data?.fonlar ?? []).map(([kod, ad]) => ({ kod, ad, n: norm(`${kod} ${ad}`) })),
+    [liste.data],
+  );
+  // Tüm kelimeler geçmeli; tam kod > kodla başlayan > adda geçen. En fazla 50 sonuç.
+  const sonuclar = useMemo(() => {
+    const q = norm(metin)
+      .split(/[\s·]+/)
+      .filter(Boolean);
+    if (!q.length) return aranabilir.slice(0, 30);
+    const kodQ = q[0];
+    return aranabilir
+      .filter((f) => q.every((w) => f.n.includes(w)))
+      .map((f) => ({ f, puan: norm(f.kod) === kodQ ? 0 : norm(f.kod).startsWith(kodQ) ? 1 : 2 }))
+      .sort((a, b) => a.puan - b.puan || a.f.kod.localeCompare(b.f.kod))
+      .slice(0, 50)
+      .map((x) => x.f);
+  }, [aranabilir, metin]);
 
   // Form dışarıdan değişirse (paylaşım linki, Sıfırla, Örnek) kutudaki metni eşitle
   useEffect(() => {
@@ -185,10 +206,20 @@ function FonSecici() {
     if (satisF) setValue('satisFiyat', satisF.fiyat, { shouldValidate: true });
   }, [alisF?.fiyat, satisF?.fiyat, setValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const sec = (deger: string) => {
-    setMetin(deger);
-    const kod = deger.trim().split(/\s/)[0].toLocaleUpperCase('tr');
-    if (unvanlar.has(kod)) setValue('fon', kod, { shouldValidate: true });
+  const sec = (kod: string, ad: string) => {
+    setMetin(`${kod} · ${ad}`);
+    setAcik(false);
+    setValue('fon', kod, { shouldValidate: true });
+  };
+  const tus = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      setAcik(true);
+      setAktif((i) => Math.max(0, Math.min(sonuclar.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1))));
+    } else if (e.key === 'Enter' && acik && sonuclar[aktif]) {
+      e.preventDefault();
+      sec(sonuclar[aktif].kod, sonuclar[aktif].ad);
+    } else if (e.key === 'Escape') setAcik(false);
   };
   const temizle = () => {
     setMetin('');
@@ -212,16 +243,27 @@ function FonSecici() {
       <div className="relative">
         <input
           id="fon-ara"
-          list="fon-listesi"
+          role="combobox"
+          aria-expanded={acik}
+          aria-controls="fon-listesi"
+          aria-autocomplete="list"
+          aria-activedescendant={acik && sonuclar[aktif] ? `fon-${sonuclar[aktif].kod}` : undefined}
           value={metin}
-          onChange={(e) => sec(e.target.value)}
+          onChange={(e) => {
+            setMetin(e.target.value);
+            setAktif(0);
+            setAcik(true);
+          }}
+          onFocus={() => setAcik(true)}
+          onBlur={() => setAcik(false)}
+          onKeyDown={tus}
           placeholder={
             liste.status === 'error'
               ? 'Fon listesi alınamadı — aşağıya elle girin'
               : 'Fon kodu ya da adı: TTE, para piyasası, altın…'
           }
           autoComplete="off"
-          className="h-11 w-full rounded-lg border border-input bg-background px-3 pr-10 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+          className="h-11 w-full truncate rounded-lg border border-input bg-background px-3 pr-10 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
         />
         {(metin || fon) && (
           <button
@@ -233,13 +275,31 @@ function FonSecici() {
             <X className="size-4" />
           </button>
         )}
-        <datalist id="fon-listesi">
-          {liste.data?.fonlar.map(([kod, ad]) => (
-            <option key={kod} value={kod}>
-              {ad}
-            </option>
-          ))}
-        </datalist>
+        {acik && liste.data && (
+          <ul
+            id="fon-listesi"
+            role="listbox"
+            aria-label="TEFAS fonları"
+            className="absolute inset-x-0 top-full z-30 mt-1.5 max-h-80 overflow-y-auto rounded-xl border bg-popover p-1.5 shadow-lg"
+          >
+            {sonuclar.length === 0 && <li className="px-3 py-2.5 text-sm text-muted-foreground">Eşleşen fon yok.</li>}
+            {sonuclar.map((f, i) => (
+              <li
+                key={f.kod}
+                id={`fon-${f.kod}`}
+                role="option"
+                aria-selected={i === aktif}
+                onMouseDown={(e) => e.preventDefault()}
+                onMouseEnter={() => setAktif(i)}
+                onClick={() => sec(f.kod, f.ad)}
+                className={`flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2 ${i === aktif ? 'bg-accent' : ''}`}
+              >
+                <span className="tabular w-12 shrink-0 pt-px text-sm font-bold text-primary">{f.kod}</span>
+                <span className="text-sm leading-snug">{f.ad}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <p className="text-xs text-muted-foreground" aria-live="polite">
         {durum === 'yukleniyor' && (
