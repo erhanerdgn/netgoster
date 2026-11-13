@@ -60,4 +60,12 @@ export const categoryIntro: Record<CategorySlug, { lead: string; paragraphs: str
       'Yüzde aracı bir sayının yüzdesini, iki değer arasındaki yüzde değişimi ve bir sayının diğerinin yüzde kaçı olduğunu formülüyle birlikte adım adım gösterir. İndirim aracı ise indirimli fiyatı, iki fiyat arasındaki indirim oranını ve ardışık indirimlerin gerçek toplam etkisini hesaplar — yüzde 30 ve ardından yüzde 20 indirimin neden yüzde 50 etmediğini görürsünüz.',
     ],
   },
+  cevirici: {
+    lead: 'Günlük hayatta en çok aranan birim dönüşümleri: gün kaç ay, metre kaç santim, dönüm kaç metrekare, pound kaç kilo, kaç derece, kaç gigabayt ve su bardağı kaç gram.',
+    paragraphs: [
+      'Çeviricilerimiz uluslararası birim sisteminin (SI) ve 1959 uluslararası yarda-libre anlaşmasının tanımlarını kullanır; inç, ayak, mil, libre ve ons gibi birimlerin metrik karşılıkları yaklaşık değil, tanım gereği tamdır. Sonuçlar okunur biçimde, gerektiğinde "35 hafta 4 gün" gibi bileşik olarak gösterilir.',
+      'Zaman çevirici ortalama ay ve yıl uzunluğunu (Gregoryen takvim) kullanır; isterseniz başlangıç tarihi girerek takvime göre kesin sonucu da görürsünüz. Alan çevirici tapuda kullanılan dönüm, dekar ve hektarı; veri çevirici ise diskte gördüğünüz GB ile işletim sisteminin gösterdiği GB arasındaki farkı açıklar.',
+      'Mutfak ölçüleri çevirici su bardağı, yemek kaşığı ve çay kaşığını malzemeye göre grama çevirir. Her sayfada en çok aranan değerlerin hazır tablosu ve sık sorulan soruların cevapları yer alır.',
+    ],
+  },
 };

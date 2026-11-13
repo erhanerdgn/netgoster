@@ -1,6 +1,8 @@
 import { contentVars, pct } from '@/content/vars';
 import { fonStopaj } from '@/config/parameters-2026';
 import { todayISO, valueAt } from '@/config/period';
+import { meskenBirimFiyat } from '@/calculators/elektrikTuketimi';
+import { dogalgazFiyat } from '@/calculators/dogalgazTuketimi';
 
 export interface ToolKpi {
   value: string;
@@ -36,6 +38,23 @@ export function toolKpis(today = todayISO()): Record<string, ToolKpi> {
     'kira-artis-hesaplama': { value: v['tufe.ortalama12'], caption: `${v['tufe.sonAy']} kira artış üst sınırı` },
     'tapu-harci-hesaplama': { value: v['tapu.toplamOran'], caption: 'Alıcı + satıcı tapu harcı' },
     'emlak-vergisi-hesaplama': { value: v['emlak.konut'], caption: 'Konutta emlak vergisi (büyükşehir dışı)' },
+    'enflasyon-hesaplama': { value: v['tufe.yillik'], caption: `${v['tufe.sonAy']} yıllık TÜFE` },
+    'elektrik-tuketimi-hesaplama': {
+      value: `${new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(meskenBirimFiyat(today))} ₺/kWh`,
+      caption: 'Mesken elektrik, vergiler dahil',
+    },
+    'dogalgaz-tuketimi-hesaplama': {
+      value: `${new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(dogalgazFiyat(today).k1)} ₺/m³`,
+      caption: 'İstanbul konut doğalgaz, KDV dahil',
+    },
+    'gun-hafta-ay-yil-cevirici': { value: '8 ay 6 gün', caption: '249 gün kaç ay eder' },
+    'uzunluk-cevirici': { value: '2,54 cm', caption: '1 inç' },
+    'alan-cevirici': { value: '1.000 m²', caption: '1 dönüm' },
+    'agirlik-cevirici': { value: '0,4536 kg', caption: '1 pound' },
+    'sicaklik-cevirici': { value: '98,6 °F', caption: '37 °C vücut ısısı' },
+    'veri-boyutu-cevirici': { value: '931 GB', caption: "1 TB disk Windows'ta" },
+    'mutfak-olculeri-cevirici': { value: '170 g', caption: '1 su bardağı toz şeker' },
+    'roma-rakami-cevirici': { value: 'MCMXXIII', caption: '1923' },
   };
 }
 

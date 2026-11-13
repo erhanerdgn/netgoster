@@ -38,6 +38,22 @@ Oturum kesilirse: önce bu dosyayı, sonra `docs/arac-ekleme.md`'yi okuyun.
 
 - [x] /kredi-hesaplama — Kredi Hesaplama
 - [x] /fon-getirisi-hesaplama — Fon Getirisi Hesaplama
+- [x] /enflasyon-hesaplama — Enflasyon Hesaplama
+- [x] /faiz-hesaplama — Faiz Hesaplama
+- [x] /rakami-yaziya-cevirme — Rakamı Yazıya Çevirme
+- [x] /elektrik-tuketimi-hesaplama — Elektrik Tüketimi Hesaplama
+- [x] /dogalgaz-tuketimi-hesaplama — Doğalgaz Tüketimi Hesaplama
+- [x] /saat-hesaplama — Saat Hesaplama
+- [x] /oran-oranti-hesaplama — Oran Orantı Hesaplama
+- [x] /ortalama-hesaplama — Ortalama Hesaplama
+- [x] /gun-hafta-ay-yil-cevirici — Gün Hafta Ay Yıl Çevirici
+- [x] /uzunluk-cevirici — Uzunluk Çevirici
+- [x] /alan-cevirici — Alan Çevirici
+- [x] /agirlik-cevirici — Ağırlık Çevirici
+- [x] /sicaklik-cevirici — Sıcaklık Çevirici
+- [x] /veri-boyutu-cevirici — Veri Boyutu Çevirici
+- [x] /mutfak-olculeri-cevirici — Mutfak Ölçüleri Çevirici
+- [x] /roma-rakami-cevirici — Roma Rakamı Çevirici
 - [x] /mevduat-faizi-hesaplama — Mevduat Faizi Hesaplama
 - [x] /kdv-hesaplama — KDV Hesaplama
 - [x] /doviz-cevirici — Döviz Çevirici

@@ -272,6 +272,11 @@
   --tone-soft: #eef2f7;
   --tone-ink: #ffffff;
 }
+.tone-cevirici {
+  --tone: #4f46e5;
+  --tone-soft: #eceafd;
+  --tone-ink: #ffffff;
+}
 .dark .tone-calisma {
   --tone: #6fb3ec;
   --tone-soft: #1d3653;
@@ -306,6 +311,11 @@
   --tone: #b8c6d6;
   --tone-soft: #233448;
   --tone-ink: #0e1a28;
+}
+.dark .tone-cevirici {
+  --tone: #a5b4fc;
+  --tone-soft: #25264d;
+  --tone-ink: #12123a;
 }
 
 .tool-card {
