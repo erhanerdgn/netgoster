@@ -236,14 +236,96 @@
   line-height: 1.2;
   letter-spacing: -0.035em;
 }
+/* Kategori renkleri: kartlar ve bento kutuları kendi kategorisinin tonunu taşır (--tone, --tone-soft, --tone-ink). */
+.tone-calisma {
+  --tone: #1663a3;
+  --tone-soft: #e6f0f9;
+  --tone-ink: #ffffff;
+}
+.tone-sigorta {
+  --tone: #6d3fd6;
+  --tone-soft: #efe9fd;
+  --tone-ink: #ffffff;
+}
+.tone-finans {
+  --tone: #0b7a55;
+  --tone-soft: #e3f4ed;
+  --tone-ink: #ffffff;
+}
+.tone-konut {
+  --tone: #b45309;
+  --tone-soft: #fdf0e1;
+  --tone-ink: #ffffff;
+}
+.tone-egitim {
+  --tone: #0e7490;
+  --tone-soft: #e0f3f7;
+  --tone-ink: #ffffff;
+}
+.tone-saglik {
+  --tone: #be2f5a;
+  --tone-soft: #fce8ee;
+  --tone-ink: #ffffff;
+}
+.tone-gunluk {
+  --tone: #4b5d73;
+  --tone-soft: #eef2f7;
+  --tone-ink: #ffffff;
+}
+.dark .tone-calisma {
+  --tone: #6fb3ec;
+  --tone-soft: #1d3653;
+  --tone-ink: #0b1a2a;
+}
+.dark .tone-sigorta {
+  --tone: #b9a2ff;
+  --tone-soft: #2a2350;
+  --tone-ink: #160d33;
+}
+.dark .tone-finans {
+  --tone: #4fd1a0;
+  --tone-soft: #123a30;
+  --tone-ink: #062019;
+}
+.dark .tone-konut {
+  --tone: #f0b95c;
+  --tone-soft: #3a2c12;
+  --tone-ink: #241703;
+}
+.dark .tone-egitim {
+  --tone: #5fd0e6;
+  --tone-soft: #113845;
+  --tone-ink: #04202a;
+}
+.dark .tone-saglik {
+  --tone: #f58fae;
+  --tone-soft: #3d1a27;
+  --tone-ink: #2a0712;
+}
+.dark .tone-gunluk {
+  --tone: #b8c6d6;
+  --tone-soft: #233448;
+  --tone-ink: #0e1a28;
+}
+
 .tool-card {
+  background:
+    radial-gradient(140% 90% at 100% 0%, color-mix(in srgb, var(--tone) 16%, transparent) 0%, transparent 55%), var(--card);
+  border-color: color-mix(in srgb, var(--tone) 22%, var(--border));
   transition:
     border-color 160ms,
-    box-shadow 160ms;
+    box-shadow 160ms,
+    transform 160ms;
 }
 .tool-card:hover {
-  border-color: var(--primary);
+  border-color: color-mix(in srgb, var(--tone) 55%, var(--border));
   box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tool-card:hover {
+    transform: none;
+  }
 }
 .intent-card {
   background: var(--card);
@@ -278,4 +360,12 @@
     justify-self: start;
     max-width: none;
   }
+}
+
+/* Ana sayfa vitrini: öne çıkan aracın kutusu (kategori tonunda degrade) */
+.vitrin-one {
+  background:
+    radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--tone) 22%, transparent) 0%, transparent 60%),
+    linear-gradient(135deg, color-mix(in srgb, var(--tone) 12%, var(--card)), var(--card) 75%);
+  border-color: color-mix(in srgb, var(--tone) 35%, var(--border));
 }

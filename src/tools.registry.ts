@@ -140,6 +140,8 @@ export interface Tool {
   popular?: boolean;
   /** İçerik/parametre son güncelleme, YYYY-MM-DD */
   updated: string;
+  /** Kartta "YENİ" etiketi (birkaç hafta sonra kaldırın) */
+  isNew?: boolean;
 }
 
 const U = '2026-11-04';
@@ -347,6 +349,7 @@ export const tools: Tool[] = [
     warning: 'finans',
     keywords: ['fon', 'yatırım fonu', 'fon getirisi', 'stopaj', 'tefas', 'para piyasası', 'hisse senedi fonu', 'katılım payı'],
     popular: true,
+    isNew: true,
     updated: '2026-11-13',
   },
   {

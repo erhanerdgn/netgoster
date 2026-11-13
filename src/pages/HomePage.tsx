@@ -8,6 +8,7 @@ import { IntentPaths } from '@/components/IntentPaths';
 import { JsonLd } from '@/components/JsonLd';
 import { AdSlot } from '@/components/AdSlot';
 import { Button } from '@/components/ui/button';
+import { kpiFor } from '@/lib/toolKpi';
 import { Input } from '@/components/ui/input';
 import { categories, toolBySlug, tools, toolsIn, type Tool } from '@/tools.registry';
 import { getRecent, removeSaved } from '@/lib/storage';
@@ -94,6 +95,7 @@ export default function HomePage() {
       </section>
 
       <div className="container-page flex flex-col gap-12 py-10 sm:gap-16 sm:py-14">
+        <Vitrin />
         {(favoriteTools.length > 0 || recent.length > 0 || saved.length > 0) && (
           <section aria-labelledby="sana-ozel" className="rounded-2xl border bg-card p-5 sm:p-6">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
@@ -291,5 +293,124 @@ export default function HomePage() {
         }}
       />
     </>
+  );
+}
+
+/** Ana sayfa vitrin (bento): öne çıkan araç büyük kutuda, popülerler canlı rakamlarıyla. Slug'ları buradan değiştirin. */
+const VITRIN = {
+  one: 'fon-getirisi-hesaplama',
+  uzun: 'brutten-nete-maas-hesaplama',
+  kucuk: ['kidem-tazminati-hesaplama', 'yks-puan-hesaplama'],
+  genis: ['kira-artis-hesaplama', 'mevduat-faizi-hesaplama'],
+};
+
+function Vitrin() {
+  const one = toolBySlug.get(VITRIN.one)!;
+  const uzun = toolBySlug.get(VITRIN.uzun)!;
+  const uzunKpi = kpiFor(uzun.slug);
+  const UzunIcon = uzun.icon;
+  return (
+    <section
+      aria-label="Öne çıkan hesaplamalar"
+      className="grid grid-cols-2 gap-3 sm:gap-3.5 lg:auto-rows-[7.5rem] lg:grid-cols-4"
+    >
+      <Link
+        to={`/${one.slug}`}
+        className={`tone-${one.category} vitrin-one relative col-span-2 flex min-h-64 flex-col overflow-hidden rounded-[1.375rem] border p-6 lg:row-span-2`}
+      >
+        <span className="flex items-center gap-2 text-[11px] font-bold tracking-wider text-[var(--tone)] uppercase">
+          <span className="rounded-full bg-[var(--tone)] px-2 py-0.5 text-[10px] tracking-normal text-[var(--tone-ink)]">
+            YENİ
+          </span>
+          {one.title}
+        </span>
+        <span className="relative mt-3 block max-w-md text-2xl leading-tight font-bold tracking-tight sm:text-[1.7rem]">
+          Fonun stopajdan ve enflasyondan sonra ne kazandırdı?
+        </span>
+        <span className="relative mt-2 block max-w-sm text-sm text-muted-foreground">
+          Alış-satış fiyatını gir; alış tarihine göre stopajı düşelim, net ve reel getirini gösterelim.
+        </span>
+        <span className="relative mt-auto inline-flex items-center gap-1.5 self-start rounded-xl bg-[var(--tone)] px-4 py-2.5 pt-2.5 text-sm font-semibold text-[var(--tone-ink)]">
+          Fon getirini hesapla <ArrowUpRight className="size-4" aria-hidden />
+        </span>
+        <svg
+          className="pointer-events-none absolute -right-2 -bottom-2 hidden h-40 w-60 text-[var(--tone)] opacity-80 sm:block"
+          viewBox="0 0 230 160"
+          aria-hidden
+        >
+          <defs>
+            <linearGradient id="vitrin-g" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor="currentColor" stopOpacity=".35" />
+              <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0 140 L25 130 L50 135 L75 105 L100 112 L125 82 L150 88 L175 54 L200 60 L230 20 L230 160 L0 160Z"
+            fill="url(#vitrin-g)"
+          />
+          <path
+            d="M0 140 L25 130 L50 135 L75 105 L100 112 L125 82 L150 88 L175 54 L200 60 L230 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+          />
+        </svg>
+      </Link>
+
+      <Link
+        to={`/${uzun.slug}`}
+        className={`tone-${uzun.category} tool-card col-span-2 flex min-h-48 flex-col rounded-[1.375rem] border p-5 sm:col-span-1 lg:row-span-2`}
+      >
+        <span className="flex size-10 items-center justify-center rounded-xl bg-[var(--tone-soft)] text-[var(--tone)]">
+          <UzunIcon className="size-5" aria-hidden />
+        </span>
+        {uzunKpi && (
+          <>
+            <span className="tabular mt-4 text-3xl leading-none font-extrabold tracking-tight">{uzunKpi.value}</span>
+            <span className="mt-1.5 text-xs text-muted-foreground">{uzunKpi.caption}</span>
+          </>
+        )}
+        <span className="mt-auto font-semibold">{uzun.title}</span>
+      </Link>
+
+      {VITRIN.kucuk.map((slug) => {
+        const t = toolBySlug.get(slug)!;
+        const Icon = t.icon;
+        return (
+          <Link
+            key={slug}
+            to={`/${slug}`}
+            className={`tone-${t.category} tool-card flex min-h-28 flex-col rounded-[1.375rem] border p-4 sm:p-5`}
+          >
+            <span className="flex size-10 items-center justify-center rounded-xl bg-[var(--tone-soft)] text-[var(--tone)]">
+              <Icon className="size-5" aria-hidden />
+            </span>
+            <span className="mt-auto pt-3 font-semibold">{t.title}</span>
+          </Link>
+        );
+      })}
+
+      {VITRIN.genis.map((slug) => {
+        const t = toolBySlug.get(slug)!;
+        const k = kpiFor(slug);
+        const Icon = t.icon;
+        return (
+          <Link
+            key={slug}
+            to={`/${slug}`}
+            className={`tone-${t.category} tool-card col-span-2 flex min-h-28 items-center gap-4 rounded-[1.375rem] border p-5`}
+          >
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--tone-soft)] text-[var(--tone)]">
+              <Icon className="size-5" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-semibold">{t.title}</span>
+              {k && <span className="block text-xs text-muted-foreground">{k.caption}</span>}
+            </span>
+            {k && <span className="tabular ml-auto text-2xl font-extrabold tracking-tight text-[var(--tone)]">{k.value}</span>}
+          </Link>
+        );
+      })}
+    </section>
   );
 }
