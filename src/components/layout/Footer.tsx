@@ -18,7 +18,7 @@ export function Footer() {
           <ThemeToggle />
         </div>
         <FooterCol title="Kategoriler" links={categories.map((c) => ({ to: `/${c.slug}`, label: c.name }))} />
-        <FooterCol title="Popüler araçlar" links={popularTools.slice(0, 8).map((t) => ({ to: `/${t.slug}`, label: t.name }))} />
+        <FooterCol title="Popüler araçlar" links={popularTools.slice(0, 10).map((t) => ({ to: `/${t.slug}`, label: t.name }))} />
         <div>
           <FooterCol title="Kurumsal" links={Object.entries(staticPages).map(([to, p]) => ({ to, label: p.title }))} />
           <CookieSettingsLink />

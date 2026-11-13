@@ -27,7 +27,9 @@ export default function HomePage() {
     );
   }, []);
   const favoriteTools = favorites.map((s) => toolBySlug.get(s)).filter((t): t is Tool => !!t);
-  const filtered = tools.filter((t) =>
+  // Varsayılan görünümde önce popüler araçlar (kayıt sırasıyla), sonra diğerleri
+  const ordered = [...tools].sort((a, b) => Number(!!b.popular) - Number(!!a.popular));
+  const filtered = ordered.filter((t) =>
     `${t.title} ${t.lead}`.toLocaleLowerCase('tr').includes(search.toLocaleLowerCase('tr').trim()),
   );
   const visible = expanded || search.trim() ? filtered : filtered.slice(0, 9);
@@ -63,6 +65,7 @@ export default function HomePage() {
                 ['Net maaş', 'brutten-nete-maas-hesaplama'],
                 ['Kredi taksiti', 'kredi-hesaplama'],
                 ['Kira artışı', 'kira-artis-hesaplama'],
+                ['Fon getirisi', 'fon-getirisi-hesaplama'],
               ].map(([name, slug]) => (
                 <Link
                   key={slug}

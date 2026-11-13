@@ -34,7 +34,6 @@ declare global {
 }
 
 // gtag.js yalnız `arguments` nesnesini komut olarak işler; dizi push'u (rest parametresi) sessizce yok sayılır.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function gtag(..._args: unknown[]) {
   window.dataLayer = window.dataLayer || [];
   // eslint-disable-next-line prefer-rest-params

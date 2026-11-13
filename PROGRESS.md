@@ -37,6 +37,7 @@ Oturum kesilirse: önce bu dosyayı, sonra `docs/arac-ekleme.md`'yi okuyun.
 ### Finans
 
 - [x] /kredi-hesaplama — Kredi Hesaplama
+- [x] /fon-getirisi-hesaplama — Fon Getirisi Hesaplama
 - [x] /mevduat-faizi-hesaplama — Mevduat Faizi Hesaplama
 - [x] /kdv-hesaplama — KDV Hesaplama
 - [x] /doviz-cevirici — Döviz Çevirici

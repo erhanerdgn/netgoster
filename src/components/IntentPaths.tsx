@@ -19,6 +19,7 @@ const paths = [
     icon: Landmark,
     slug: 'kredi-hesaplama',
     links: [
+      ['Fon getirisi', 'fon-getirisi-hesaplama'],
       ['Mevduat getirisi', 'mevduat-faizi-hesaplama'],
       ['Altın hesabı', 'altin-hesaplama'],
     ],

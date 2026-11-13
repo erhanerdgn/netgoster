@@ -305,6 +305,62 @@ export const mevduatStopaj: Series<{ alti6Ay: number; bir1Yil: number; uzun: num
   },
 ];
 
+/**
+ * Yatırım fonu payı kazancında stopaj (GVK geçici 67, 2006/10731 BKK) — payın ALIŞ (iktisap) tarihine göre.
+ * Gruplar fon TÜRÜNE değil UNVANINA göre ayrılır (Karar 3321 istisna listesi):
+ * - hisse: portföyünün en az %80'i BIST hissesi olan hisse senedi yoğun fonlar (BKK 2012/3141, hep %0)
+ * - indirimli: para piyasası, likit, borçlanma araçları, kira sertifikası, altın/kıymetli maden, katılım, fon sepeti,
+ *   hisse yoğun olmayan endeks fonları (unvanında aşağıdaki kelimeler YOKSA)
+ * - diger: unvanında "değişken, karma, eurobond, dış borçlanma, yabancı, serbest, döviz" geçen fonlar
+ * - gsyfGyf: girişim sermayesi / gayrimenkul yatırım fonu (2 yıldan fazla elde tutulursa %0 — Karar 4454; hesapta)
+ * Kaynak: GİB "GVK Geçici 67. Madde Gerçek Kişilere Yönelik Vergi Rehberi" (Şubat 2026, Yayın 598) §20.
+ * Yeni karar çıkınca alış tarihinden itibaren geçerli yeni bir dönem ekleyin.
+ */
+export type FonTuru = 'hisse' | 'indirimli' | 'diger' | 'gsyfGyf';
+export const fonStopaj: Series<Record<FonTuru, number>> = [
+  {
+    from: '2006-01-01',
+    to: '2020-12-22',
+    value: { hisse: 0, indirimli: 0.1, diger: 0.1, gsyfGyf: 0.1 },
+    source: '2006/10731 s. BKK (genel oran %10; hisse yoğun fonlar 2012/3141 s. BKK ile %0)',
+    verified: true,
+  },
+  {
+    from: '2020-12-23',
+    to: '2024-04-30',
+    value: { hisse: 0, indirimli: 0, diger: 0.1, gsyfGyf: 0 },
+    source: '3321 s. CK (RG 23.12.2020/31343); son uzatma 8002 s. CK (RG 28.12.2023/32413) — GİB rehberi §20',
+    verified: true,
+  },
+  {
+    from: '2024-05-01',
+    to: '2024-10-31',
+    value: { hisse: 0, indirimli: 0.075, diger: 0.1, gsyfGyf: 0.075 },
+    source: "8434 s. CK (RG 01.05.2024/32533); 8775 s. CK (RG 01.08.2024/32619) ile 31.10.2024'e uzatıldı",
+    verified: true,
+  },
+  {
+    from: '2024-11-01',
+    to: '2025-01-31',
+    value: { hisse: 0, indirimli: 0.1, diger: 0.1, gsyfGyf: 0.1 },
+    source: '9075 s. CK (RG 01.11.2024/32709) — indirimli oran sona erdi',
+    verified: true,
+  },
+  {
+    from: '2025-02-01',
+    to: '2025-07-08',
+    value: { hisse: 0, indirimli: 0.15, diger: 0.15, gsyfGyf: 0.15 },
+    source: '9487 s. CK (RG 01.02.2025/32800)',
+    verified: true,
+  },
+  {
+    from: '2025-07-09',
+    value: { hisse: 0, indirimli: 0.175, diger: 0.175, gsyfGyf: 0.175 },
+    source: '10041 s. CK (RG 09.07.2025/32951)',
+    verified: true,
+  },
+];
+
 /** KDV oranları — src/config/kdv.ts (araç klasörüyle birlikte yönetilir) */
 
 // ════════════════════════ KONUT ════════════════════════
