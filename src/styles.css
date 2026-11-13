@@ -379,3 +379,90 @@
     linear-gradient(135deg, color-mix(in srgb, var(--tone) 12%, var(--card)), var(--card) 75%);
   border-color: color-mix(in srgb, var(--tone) 35%, var(--border));
 }
+
+/*
+ * Üst piyasa şeridi (PiyasaBar). Siteden bağımsız kendi koyu paleti var:
+ * açık temada da koyu kalır, çünkü rakamların artış/azalış rengi ancak koyu
+ * nötr zeminde net okunuyor (parlak mavide yeşil-kırmızı ayrışmıyordu).
+ */
+.piyasa-bar {
+  --piyasa-zemin: #0e1a28;
+  --piyasa-metin: #eef4fa;
+  --piyasa-soluk: #8ba1b8;
+  --piyasa-ayrac: rgb(255 255 255 / 0.09);
+  --piyasa-artis: #4ade80;
+  --piyasa-azalis: #f87171;
+  background: var(--piyasa-zemin);
+}
+.piyasa-oge + .piyasa-oge,
+.piyasa-oge {
+  border-right: 1px solid var(--piyasa-ayrac);
+}
+.piyasa-oge:last-child {
+  border-right: 0;
+}
+.piyasa-etiket {
+  color: var(--piyasa-soluk);
+}
+.piyasa-deger {
+  color: var(--piyasa-metin);
+  font-variant-numeric: tabular-nums;
+}
+/* Para birimi rakamın başında: rakamla aynı boy ve renk, yoksa okunmuyor.
+   Rengi miras aldığı için tik animasyonunda rakamla birlikte yeşil/kırmızı yanar. */
+.piyasa-birim {
+  margin-right: 0.1em;
+}
+.piyasa-artis {
+  color: var(--piyasa-artis);
+}
+.piyasa-azalis {
+  color: var(--piyasa-azalis);
+}
+/* Fiyat tikı: yükseldiyse yeşil, düştüyse kırmızı yanıp söner. Rakam da kısa süre renklenir. */
+.piyasa-tik-artis {
+  animation: piyasa-tik-artis 0.9s ease-out;
+}
+.piyasa-tik-azalis {
+  animation: piyasa-tik-azalis 0.9s ease-out;
+}
+@keyframes piyasa-tik-artis {
+  0% {
+    background: color-mix(in srgb, var(--piyasa-artis) 42%, transparent);
+    color: #0b1a12;
+  }
+  45% {
+    background: color-mix(in srgb, var(--piyasa-artis) 24%, transparent);
+    color: var(--piyasa-artis);
+  }
+  100% {
+    background: transparent;
+    color: var(--piyasa-metin);
+  }
+}
+@keyframes piyasa-tik-azalis {
+  0% {
+    background: color-mix(in srgb, var(--piyasa-azalis) 42%, transparent);
+    color: #2a0d0d;
+  }
+  45% {
+    background: color-mix(in srgb, var(--piyasa-azalis) 24%, transparent);
+    color: var(--piyasa-azalis);
+  }
+  100% {
+    background: transparent;
+    color: var(--piyasa-metin);
+  }
+}
+.piyasa-tik-artis,
+.piyasa-tik-azalis {
+  border-radius: 5px;
+  padding-inline: 3px;
+  margin-inline: -3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .piyasa-tik-artis,
+  .piyasa-tik-azalis {
+    animation: none;
+  }
+}

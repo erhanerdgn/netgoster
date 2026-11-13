@@ -4,6 +4,7 @@ import { getMeta } from '@/lib/seo';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ConsentBanner } from './ConsentBanner';
+import { PiyasaBar } from './PiyasaBar';
 
 function setMeta(selector: string, attr: string, value: string) {
   const el = document.head.querySelector(selector);
@@ -30,6 +31,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <RouteEffects />
+      <PiyasaBar />
       <Header />
       <main id="icerik">{children}</main>
       <Footer />

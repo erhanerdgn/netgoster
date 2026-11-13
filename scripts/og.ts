@@ -15,9 +15,22 @@ const fonts = [font('latin', 400), font('latin', 700), font('latin-ext', 400), f
 
 const C = { primary: '#1663a3', result: '#0b7a55', bg: '#f4f7fb', ink: '#132a42', muted: '#556b82', white: '#ffffff' };
 
-/** Logo ikonu (src/components/layout/Logo.tsx ile aynı geometri, sabit renkler) */
+/*
+ * Logo ikonu: "N" monogramı + sağ üstte sonuç noktası.
+ * Geometri src/components/layout/Logo.tsx ile birebir aynı — ikisi de 32×32 ızgarada çizilir.
+ * Harf tabanlı işaret seçildi çünkü favicon çoğunlukla 16 pikselde görünüyor (sekme, yer imi,
+ * Google sonuçları) ve o boyutta soyut çubuk/şekil işaretleri okunmaz bir lekeye dönüşüyor.
+ */
 export function logoSvg(): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="${C.primary}"/><rect x="8" y="10.5" width="16" height="3.2" rx="1.6" fill="#fff"/><rect x="8" y="18.3" width="10" height="3.2" rx="1.6" fill="#fff"/><circle cx="22.4" cy="19.9" r="2.2" fill="#4fd1a0"/></svg>`;
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">` +
+    `<rect width="32" height="32" rx="9" fill="${C.primary}"/>` +
+    `<rect x="8" y="9" width="3.2" height="14" rx="1.6" fill="#fff"/>` +
+    `<rect x="20.8" y="9" width="3.2" height="14" rx="1.6" fill="#fff"/>` +
+    `<path d="M11.2 10.6 L20.8 21.4" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>` +
+    `<circle cx="24.2" cy="8.6" r="3" fill="#4fd1a0" stroke="${C.primary}" stroke-width="1.6"/>` +
+    `</svg>`
+  );
 }
 
 export function iconPng(size: number): Buffer {
