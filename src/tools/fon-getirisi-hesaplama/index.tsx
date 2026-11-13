@@ -1,22 +1,29 @@
-import { useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
+import { Loader2, X } from 'lucide-react';
 import { CalculatorLayout } from '@/components/calc/CalculatorLayout';
 import { ChoiceField, DateField, NumberField, SelectField } from '@/components/calc/fields';
 import type { ResultView } from '@/components/calc/ResultCard';
 import {
   calculateFonGetirisi,
+  fiyatBul,
   fonGetirisiSchema,
+  fonGrubu,
+  fonUyarisi,
   type FonGetirisiInput,
   type FonGetirisiValues,
   type FonTuru,
 } from '@/calculators/fonGetirisi';
-import { addDays } from '@/calculators/common';
+import { addDays, dayNumber } from '@/calculators/common';
 import { todayISO } from '@/config/period';
 import { dateTR, num, pct, tl } from '@/lib/format';
+import { useLive } from '@/lib/liveData';
 import content from './content.md';
 
 const today = todayISO();
 const defaults: Partial<FonGetirisiInput> = { tur: 'indirimli', yontem: 'fiyat', alis: addDays(today, -365), satis: today };
 const example: FonGetirisiInput = {
+  fon: '',
   tur: 'indirimli',
   yontem: 'fiyat',
   tutar: 100000,
@@ -111,10 +118,158 @@ function present(v: FonGetirisiValues): ResultView {
   };
 }
 
+interface FonListesi {
+  fonlar: [string, string][];
+  fetchedAt?: string;
+  stale?: boolean;
+}
+interface FonFiyat {
+  kod: string;
+  unvan: string;
+  fiyatlar: [string, number][];
+}
+
+/**
+ * TEFAS'tan fon seçimi: kod ya da adla arama (tarayıcının yerleşik öneri listesi), seçilince stopaj grubu
+ * unvandan bulunur, alış/satış tarihindeki birim pay fiyatları doldurulur. Veri gelmezse elle giriş sürer.
+ */
+function FonSecici() {
+  const { setValue } = useFormContext<FonGetirisiInput>();
+  const fon = useWatch<FonGetirisiInput, 'fon'>({ name: 'fon' });
+  const alis = useWatch<FonGetirisiInput, 'alis'>({ name: 'alis' });
+  const satis = useWatch<FonGetirisiInput, 'satis'>({ name: 'satis' });
+  const liste = useLive<FonListesi>('/api/fonlar');
+  const [metin, setMetin] = useState(fon ?? '');
+  const [seri, setSeri] = useState<FonFiyat | null>(null);
+  const [durum, setDurum] = useState<'bos' | 'yukleniyor' | 'tamam' | 'hata'>('bos');
+
+  const unvanlar = useMemo(() => new Map(liste.data?.fonlar ?? []), [liste.data]);
+
+  // Form dışarıdan değişirse (paylaşım linki, Sıfırla, Örnek) kutudaki metni eşitle
+  useEffect(() => {
+    setMetin((m) => (m.trim().split(/\s/)[0].toLocaleUpperCase('tr') === (fon ?? '') ? m : (fon ?? '')));
+  }, [fon]);
+
+  // Kod seçildi/değişti → fiyat geçmişini çek
+  useEffect(() => {
+    if (!fon) {
+      setSeri(null);
+      setDurum('bos');
+      return;
+    }
+    let alive = true;
+    setDurum('yukleniyor');
+    fetch(`/api/fon/${encodeURIComponent(fon)}`)
+      .then(async (r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        const d = (await r.json()) as FonFiyat & { error?: string };
+        if (!d.fiyatlar?.length) throw new Error(d.error ?? 'boş');
+        if (!alive) return;
+        setSeri(d);
+        setDurum('tamam');
+        setValue('tur', fonGrubu(d.unvan), { shouldValidate: true });
+        setValue('yontem', 'fiyat', { shouldValidate: true });
+      })
+      .catch(() => alive && setDurum('hata'));
+    return () => {
+      alive = false;
+    };
+  }, [fon, setValue]);
+
+  const alisF = seri && alis ? fiyatBul(seri.fiyatlar, alis) : undefined;
+  const satisF = seri && satis ? fiyatBul(seri.fiyatlar, satis) : undefined;
+
+  // Tarih ya da seri değişince fiyatları doldur
+  useEffect(() => {
+    if (alisF) setValue('alisFiyat', alisF.fiyat, { shouldValidate: true });
+    if (satisF) setValue('satisFiyat', satisF.fiyat, { shouldValidate: true });
+  }, [alisF?.fiyat, satisF?.fiyat, setValue]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const sec = (deger: string) => {
+    setMetin(deger);
+    const kod = deger.trim().split(/\s/)[0].toLocaleUpperCase('tr');
+    if (unvanlar.has(kod)) setValue('fon', kod, { shouldValidate: true });
+  };
+  const temizle = () => {
+    setMetin('');
+    setValue('fon', undefined, { shouldValidate: true });
+  };
+
+  const unvan = seri?.unvan ?? (fon ? unvanlar.get(fon) : undefined);
+  const eskiFiyat = satisF && satis && dayNumber(satis) - dayNumber(satisF.tarih) > 5;
+  const uyari = [
+    unvan && fonUyarisi(unvan),
+    eskiFiyat &&
+      `Fonun ${dateTR(satisF.tarih)} sonrasına ait fiyatı yok; fon işlem görmüyor olabilir. Satış fiyatı olarak o günün fiyatı kullanıldı.`,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return (
+    <div className="space-y-1.5 sm:col-span-2">
+      <label htmlFor="fon-ara" className="text-sm font-medium">
+        Fon (TEFAS'tan seç — isteğe bağlı)
+      </label>
+      <div className="relative">
+        <input
+          id="fon-ara"
+          list="fon-listesi"
+          value={metin}
+          onChange={(e) => sec(e.target.value)}
+          placeholder={
+            liste.status === 'error'
+              ? 'Fon listesi alınamadı — aşağıya elle girin'
+              : 'Fon kodu ya da adı: TTE, para piyasası, altın…'
+          }
+          autoComplete="off"
+          className="h-11 w-full rounded-lg border border-input bg-background px-3 pr-10 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+        />
+        {(metin || fon) && (
+          <button
+            type="button"
+            onClick={temizle}
+            aria-label="Fon seçimini temizle"
+            className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        )}
+        <datalist id="fon-listesi">
+          {liste.data?.fonlar.map(([kod, ad]) => (
+            <option key={kod} value={kod}>
+              {ad}
+            </option>
+          ))}
+        </datalist>
+      </div>
+      <p className="text-xs text-muted-foreground" aria-live="polite">
+        {durum === 'yukleniyor' && (
+          <span className="inline-flex items-center gap-1.5">
+            <Loader2 className="size-3.5 animate-spin" aria-hidden /> TEFAS fiyatları alınıyor…
+          </span>
+        )}
+        {durum === 'hata' && 'TEFAS fiyatları şu an alınamadı; alış ve satış fiyatlarını aşağıya elle girebilirsiniz.'}
+        {durum === 'tamam' && seri && (
+          <>
+            <strong className="text-foreground">{seri.kod}</strong> · {seri.unvan}
+            <br />
+            {alisF
+              ? `Alış: ${dateTR(alisF.tarih)} fiyatı ${num(alisF.fiyat, 6)}`
+              : `Alış tarihi TEFAS verisinden (${dateTR(seri.fiyatlar[0][0])}) eski; alış fiyatını elle girin`}
+            {satisF && ` · Satış: ${dateTR(satisF.tarih)} fiyatı ${num(satisF.fiyat, 6)}`}
+          </>
+        )}
+        {durum === 'bos' && 'Fon seçerseniz stopaj grubu ve tarihlerdeki fiyatlar TEFAS verisiyle otomatik dolar.'}
+      </p>
+      {uyari && <p className="text-xs font-medium text-warning">{uyari}</p>}
+    </div>
+  );
+}
+
 function Fields() {
   const yontem = useWatch<FonGetirisiInput, 'yontem'>({ name: 'yontem' });
   return (
     <>
+      <FonSecici />
       <SelectField<FonGetirisiInput>
         name="tur"
         label="Fon türü"

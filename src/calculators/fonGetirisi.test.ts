@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   calculateFonGetirisi,
   donemEnflasyonu,
+  fiyatBul,
+  fonGrubu,
   fonGetirisiSchema,
   fonStopajOrani,
   type FonGetirisiInput,
@@ -116,5 +118,32 @@ describe('fon getirisi', () => {
     expect(fonGetirisiSchema.safeParse({ ...base, alisFiyat: 1, satisFiyat: 2, satis: '2026-01-01' }).success).toBe(false);
     expect(fonGetirisiSchema.safeParse({ ...base, satisFiyat: 2, satis: '2026-02-01' }).success).toBe(false);
     expect(fonGetirisiSchema.safeParse({ ...base, yontem: 'oran', satis: '2026-02-01' }).success).toBe(false);
+  });
+
+  it('TEFAS unvanından stopaj grubu', () => {
+    expect(
+      fonGrubu('İŞ PORTFÖY BIST TEKNOLOJİ AĞIRLIK SINIRLAMALI ENDEKSİ HİSSE SENEDİ (TL) FONU (HİSSE SENEDİ YOĞUN FON)'),
+    ).toBe('hisse');
+    expect(fonGrubu('TERA PORTFÖY PARA PİYASASI (TL) FONU')).toBe('indirimli');
+    expect(fonGrubu('AK PORTFÖY ALTIN FONU')).toBe('indirimli');
+    expect(fonGrubu('İSTANBUL PORTFÖY BİRİNCİ DEĞİŞKEN FON')).toBe('diger');
+    expect(fonGrubu('AK PORTFÖY YENİ TEKNOLOJİLER YABANCI HİSSE SENEDİ FONU')).toBe('diger');
+    expect(fonGrubu('X PORTFÖY KISA VADELİ SERBEST (DÖVİZ) FON')).toBe('diger');
+    expect(fonGrubu('Y PORTFÖY HİSSE SENEDİ SERBEST FON (HİSSE SENEDİ YOĞUN FON)')).toBe('hisse');
+    expect(fonGrubu('Z PORTFÖY GİRİŞİM SERMAYESİ YATIRIM FONU')).toBe('gsyfGyf');
+  });
+
+  it('tarihteki fiyat; hafta sonu → önceki iş günü, seri öncesi → yok', () => {
+    const f: [string, number][] = [
+      ['2026-11-06', 1.1],
+      ['2026-11-09', 1.2],
+      ['2026-11-10', 1.3],
+    ];
+    expect(fiyatBul(f, '2026-11-09')).toEqual({ tarih: '2026-11-09', fiyat: 1.2 });
+    expect(fiyatBul(f, '2026-11-08')).toEqual({ tarih: '2026-11-06', fiyat: 1.1 });
+    expect(fiyatBul(f, '2026-12-01')).toEqual({ tarih: '2026-11-10', fiyat: 1.3 });
+    expect(fiyatBul(f, '2026-11-01')).toBeUndefined();
+    // açıklanmamış gün 0 gelir → önceki fiyat
+    expect(fiyatBul([...f, ['2026-11-11', 0]], '2026-11-11')).toEqual({ tarih: '2026-11-10', fiyat: 1.3 });
   });
 });

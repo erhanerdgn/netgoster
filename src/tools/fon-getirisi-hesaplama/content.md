@@ -8,6 +8,8 @@ Yatırım fonuna yatırdığınız para, fonun **birim pay fiyatı** üzerinden 
 >
 > **Net kazanç = Brüt kazanç − Stopaj (brüt kazanç × stopaj oranı)**
 
+**Fonunuzu TEFAS'tan seçebilirsiniz.** Fon kodunu (ör. TTE) ya da adının bir kısmını yazdığınızda hesaplayıcı TEFAS'taki yatırım fonları arasından seçmenizi sağlar; seçtiğiniz fonun stopaj grubunu unvanından belirler, alış ve satış tarihlerindeki birim pay fiyatlarını son 5 yıllık TEFAS verisinden otomatik doldurur. Tatil ve hafta sonuna denk gelen tarihlerde bir önceki iş gününün fiyatı kullanılır. Fiyat alınamazsa değerleri elle girebilirsiniz.
+
 Fon fiyatına yönetim ücreti, saklama ve diğer fon giderleri **zaten yansıtılmıştır**. TEFAS'ta gördüğünüz getiri bu giderler düşüldükten sonraki getiridir. Aracı kurumunuz alım-satımda ayrıca komisyon alıyorsa onu sonuçtan düşmeniz gerekir.
 
 Henüz satmadığınız ya da ileriye dönük bir tahmin yapmak istediğiniz fonlarda hesaplayıcının **yıllık getiriyle** yöntemini kullanabilirsiniz. Bu yöntem fon fiyatının günlük bileşik büyüdüğünü varsayar:

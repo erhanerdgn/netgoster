@@ -62,7 +62,7 @@ const json = (data: unknown, maxAge: number, status = 200) =>
   });
 
 /** Önbellek → kaynak → son başarılı veri sırası. `load` başarısız olursa son veri `stale: true` döner. */
-async function cached<T extends object>(
+export async function cached<T extends object>(
   ctx: ExecutionContext,
   key: string,
   lastKey: string,

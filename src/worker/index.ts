@@ -3,9 +3,11 @@
  * - www.netgoster.com → netgoster.com (301, yol ve sorgu korunur)
  * - /api/kurlar: TCMB today.xml → JSON (Cache API, 1 saat; hata olursa son başarılı veri)
  * - /api/altin:  ons altın (USD) × TCMB USD/TRY → gram fiyatı (Cache API, 15 dk)
+ * - /api/fonlar, /api/fon/<KOD>: TEFAS fon listesi ve fiyat geçmişi (fon.ts)
  * - Statik dosyalara güvenlik ve önbellek başlıkları
  */
 import { site } from '../config/site.ts';
+import { FON_KODU, getFonFiyat, getFonListesi } from './fon.ts';
 import { getGold, getRates } from './rates.ts';
 
 interface Env {
@@ -54,6 +56,12 @@ export default {
 
     if (url.pathname === '/api/kurlar') return withHeaders(await getRates(ctx), url.pathname, host);
     if (url.pathname === '/api/altin') return withHeaders(await getGold(ctx), url.pathname, host);
+    if (url.pathname === '/api/fonlar') return withHeaders(await getFonListesi(ctx), url.pathname, host);
+    if (url.pathname.startsWith('/api/fon/')) {
+      const kod = url.pathname.slice('/api/fon/'.length).toUpperCase();
+      if (!FON_KODU.test(kod)) return withHeaders(new Response('Geçersiz fon kodu', { status: 400 }), url.pathname, host);
+      return withHeaders(await getFonFiyat(ctx, kod), url.pathname, host);
+    }
 
     const res = await env.ASSETS.fetch(request);
     return withHeaders(res, url.pathname, host);

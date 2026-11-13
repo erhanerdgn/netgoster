@@ -10,6 +10,8 @@ export const FON_TURLERI = ['hisse', 'indirimli', 'diger', 'gsyfGyf'] as const s
 
 export const fonGetirisiSchema = z
   .object({
+    /** TEFAS fon kodu (isteğe bağlı): seçilirse grup ve fiyatlar TEFAS'tan doldurulur */
+    fon: z.string().max(5).optional(),
     tur: z.enum(FON_TURLERI),
     yontem: z.enum(['fiyat', 'oran']),
     tutar: zMoney('Yatırım tutarı', { min: 1 }),
@@ -125,4 +127,34 @@ export function calculateFonGetirisi(v: FonGetirisiValues): FonGetirisiResult {
     result.enflasyonAylar = enf.aylar;
   }
   return result;
+}
+
+/**
+ * TEFAS unvanından stopaj grubu (GİB rehberi §20: gruplar unvana göre ayrılır).
+ * Sıra önemli: hisse senedi yoğun ifadesi her şeyden önce gelir.
+ */
+export function fonGrubu(unvan: string): FonTuru {
+  const u = unvan.toLocaleUpperCase('tr');
+  if (u.includes('HİSSE SENEDİ YOĞUN')) return 'hisse';
+  if (u.includes('GİRİŞİM SERMAYESİ') || u.includes('GAYRİMENKUL YATIRIM FONU')) return 'gsyfGyf';
+  if (/DEĞİŞKEN|KARMA|EUROBOND|DIŞ BORÇLANMA|YABANCI|SERBEST|DÖVİZ/.test(u)) return 'diger';
+  return 'indirimli';
+}
+
+/** Verilen tarihteki (yoksa önceki son iş günündeki, sıfır olmayan) birim pay fiyatı; seri tarihe göre artan sıralı olmalı. */
+export function fiyatBul(fiyatlar: [string, number][], tarih: string): { tarih: string; fiyat: number } | undefined {
+  let hit: [string, number] | undefined;
+  for (const f of fiyatlar) {
+    if (f[0] > tarih) break;
+    if (f[1] > 0) hit = f; // TEFAS açıklanmamış günün fiyatını 0 yazar
+  }
+  return hit && { tarih: hit[0], fiyat: hit[1] };
+}
+
+/** Seçilen fon için stopaj grubunun kesin olmadığı durumların uyarısı */
+export function fonUyarisi(unvan: string): string | undefined {
+  const u = unvan.toLocaleUpperCase('tr');
+  if (u.includes('HİSSE SENEDİ YOĞUN') && /SERBEST|ÖZEL FON/.test(u))
+    return 'Hisse yoğun serbest/özel fon: TEFAS dışında işlem görüyorsa 27.03.2026 sonrası alışlarda %0 yerine %17,5 stopaj uygulanır (11107 s. CK).';
+  return undefined;
 }
