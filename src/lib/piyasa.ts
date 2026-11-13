@@ -205,9 +205,7 @@ export async function serisiGetir(g: Gosterge, aralik: Aralik): Promise<Mum[]> {
   if (g.carpanSembol) {
     const carpan = await mumGetir(g.carpanSembol, a.mum, a.adet);
     const tablo = new Map(carpan.map((m) => [m.zaman, m.kapanis]));
-    return kendi
-      .map((m) => ({ ...m, kapanis: m.kapanis * (tablo.get(m.zaman) ?? 0) }))
-      .filter((m) => m.kapanis > 0);
+    return kendi.map((m) => ({ ...m, kapanis: m.kapanis * (tablo.get(m.zaman) ?? 0) })).filter((m) => m.kapanis > 0);
   }
 
   return kendi;

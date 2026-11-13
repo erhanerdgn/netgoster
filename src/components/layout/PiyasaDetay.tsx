@@ -53,9 +53,7 @@ function Grafik({
 
   if (!cizgi) {
     return (
-      <div className="flex h-[240px] items-center justify-center text-sm text-muted-foreground">
-        Grafik verisi alınamadı.
-      </div>
+      <div className="flex h-[240px] items-center justify-center text-sm text-muted-foreground">Grafik verisi alınamadı.</div>
     );
   }
 
