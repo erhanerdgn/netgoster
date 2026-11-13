@@ -25,7 +25,8 @@ export function FavoriteButton({ slug, name }: { slug: string; name: string }) {
   );
 }
 
-export function ToolCard({ tool, compact }: { tool: Tool; compact?: boolean }) {
+/** `inCategory`: kategori sayfasında kategori adı yerine aracın ikonu gösterilir (tekrarı önler). */
+export function ToolCard({ tool, compact, inCategory }: { tool: Tool; compact?: boolean; inCategory?: boolean }) {
   const Icon = tool.icon;
   if (compact) {
     return (
@@ -47,37 +48,34 @@ export function ToolCard({ tool, compact }: { tool: Tool; compact?: boolean }) {
   return (
     <div className={cn('tool-card group relative flex overflow-hidden rounded-[1.375rem] border', `tone-${tool.category}`)}>
       <Link to={`/${tool.slug}`} className="flex min-h-52 min-w-0 flex-1 flex-col p-5">
-        <span className="flex items-center gap-2 pr-10 text-[11px] font-bold tracking-wider text-[var(--tone)] uppercase">
-          <span className="size-1.5 rounded-full bg-[var(--tone)] shadow-[0_0_10px_var(--tone)]" aria-hidden />
-          {category?.name}
+        <span className="flex items-center gap-2 pr-10">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--tone-soft)] text-[var(--tone)]">
+            <Icon className="size-5" aria-hidden />
+          </span>
           {tool.isNew && (
-            <span className="rounded-full bg-[var(--tone)] px-2 py-0.5 text-[10px] tracking-normal text-[var(--tone-ink)]">
-              YENİ
-            </span>
+            <span className="rounded-full bg-[var(--tone)] px-2 py-0.5 text-[10px] font-bold text-[var(--tone-ink)]">YENİ</span>
           )}
         </span>
+        <span className="mt-4 block text-lg leading-snug font-bold tracking-tight text-foreground">{tool.title}</span>
         {kpi ? (
-          <span className="mt-4 block">
-            <span className="tabular block text-[1.95rem] leading-none font-extrabold tracking-tight text-foreground">
+          <span className="mt-2 block">
+            <span className="tabular block text-2xl leading-tight font-extrabold tracking-tight text-[var(--tone)]">
               {kpi.value}
             </span>
-            <span className="mt-2 block text-xs text-muted-foreground">{kpi.caption}</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">{kpi.caption}</span>
           </span>
         ) : (
-          <span className="mt-4 flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[var(--tone-soft)] text-[var(--tone)]">
-              <Icon className="size-5" aria-hidden />
-            </span>
-            <span className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{tool.lead}</span>
-          </span>
+          <span className="mt-2 line-clamp-2 block text-sm leading-relaxed text-muted-foreground">{tool.lead}</span>
         )}
-        <span className="mt-auto flex items-center justify-between gap-3 pt-5">
-          <span className="font-semibold leading-snug text-foreground">{tool.title}</span>
+        <span className="mt-auto flex items-center justify-between gap-3 pt-4">
+          <span className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+            {!inCategory && category?.name}
+          </span>
           <span
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--tone)] text-[var(--tone-ink)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[var(--tone)] text-[var(--tone-ink)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             aria-hidden
           >
-            <ArrowUpRight className="size-5" />
+            <ArrowUpRight className="size-[1.1rem]" />
           </span>
         </span>
       </Link>

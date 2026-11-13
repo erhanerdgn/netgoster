@@ -24,7 +24,7 @@ export default function CategoryPage({ category }: { category: Category }) {
       </header>
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {list.map((t) => (
-          <ToolCard key={t.slug} tool={t} />
+          <ToolCard key={t.slug} tool={t} inCategory />
         ))}
       </div>
       <AdSlot slot="category" />
