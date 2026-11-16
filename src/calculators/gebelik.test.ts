@@ -1,10 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { todayISO } from '../config/period.ts';
 import { addDays } from './common.ts';
 import { calculateGebelik, gebelikSchema } from './gebelik.ts';
 
 const T = '2026-11-04';
 const run = (v: object, today = T) => calculateGebelik(gebelikSchema.parse(v), today);
+
+/*
+ * Saati sabitle. Şemanın 42 hafta kontrolü `todayISO()` üzerinden GERÇEK saati okur;
+ * hesaplama ise aşağıda sabit T ile çağrılıyor. İkisi ayrışınca testler takvim ilerledikçe
+ * kendiliğinden kırılıyordu (40+3 senaryosu 42 haftayı aşıp şemadan geri dönüyordu).
+ */
+beforeAll(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(`${T}T12:00:00`));
+});
+afterAll(() => vi.useRealTimers());
 
 describe('gebelik haftası', () => {
   it('SAT 12.08.2026, 28 gün: 19+30+31+4 = 84 gün → 12+0; TDT 19.05.2027 (Naegele +1y −3a +7g); kalan 196', () => {

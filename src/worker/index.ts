@@ -47,10 +47,18 @@ export default {
     const url = new URL(request.url);
 
     const host = (request.headers.get('host') ?? url.hostname).split(':')[0];
-    if (host === `www.${site.domain}`) {
+
+    /*
+     * Tek kanonik adres: https://netgoster.com — www VE düz http buraya 301 ile gelir.
+     * http yönlendirmesi şart: Cloudflare "Always Use HTTPS" kapalıyken düz http isteği
+     * worker'a kadar geliyor ve sayfa 200 dönüyordu; her sayfanın http:// kopyası oluşuyor,
+     * Search Console bunu "Yönlendirmeli sayfa"/yinelenen içerik olarak raporluyor.
+     * İkisi tek atlamada çözülür — zincirleme yönlendirme tarama bütçesi harcar.
+     */
+    if (url.protocol === 'http:' || host === `www.${site.domain}`) {
+      url.protocol = 'https:';
       url.hostname = site.domain;
       url.port = '';
-      url.protocol = 'https:';
       return Response.redirect(url.toString(), 301);
     }
 

@@ -13,6 +13,16 @@ describe('worker', () => {
     expect(res.status).toBe(301);
     expect(res.headers.get('location')).toBe('https://netgoster.com/kdv-hesaplama?tutar=100');
   });
+  it('http → https 301 (düz http isteği 200 dönmemeli)', async () => {
+    const res = await call('http://netgoster.com/altin-hesaplama');
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://netgoster.com/altin-hesaplama');
+  });
+  it('http + www tek atlamada çözülür', async () => {
+    const res = await call('http://www.netgoster.com/kredi-hesaplama?vade=12');
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://netgoster.com/kredi-hesaplama?vade=12');
+  });
   it('HTML yanıtına güvenlik ve kısa önbellek başlıkları', async () => {
     const res = await call('https://netgoster.com/kdv-hesaplama');
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
