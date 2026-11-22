@@ -23,6 +23,21 @@ describe('worker', () => {
     expect(res.status).toBe(301);
     expect(res.headers.get('location')).toBe('https://netgoster.com/kredi-hesaplama?vade=12');
   });
+  it('yerel önizleme (http://localhost) canlıya yönlendirilmez', async () => {
+    const res = await call('http://localhost:8787/kredi-hesaplama');
+    expect(res.status).toBe(200);
+  });
+  it('gömülü hesaplayıcı başka sitede çerçevelenebilir ve dizinlenmez', async () => {
+    const res = await call('https://netgoster.com/gom/kredi-hesaplama');
+    expect(res.headers.get('x-frame-options')).toBeNull();
+    expect(res.headers.get('content-security-policy')).toBe('frame-ancestors *');
+    expect(res.headers.get('x-robots-tag')).toBe('noindex, follow');
+  });
+  it('gömülü olmayan sayfalar çerçeveye kapalı kalır', async () => {
+    const res = await call('https://netgoster.com/kredi-hesaplama');
+    expect(res.headers.get('x-frame-options')).toBe('SAMEORIGIN');
+    expect(res.headers.get('content-security-policy')).toBeNull();
+  });
   it('HTML yanıtına güvenlik ve kısa önbellek başlıkları', async () => {
     const res = await call('https://netgoster.com/kdv-hesaplama');
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');

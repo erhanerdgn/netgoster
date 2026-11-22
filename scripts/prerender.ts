@@ -11,7 +11,7 @@ import { ogImage, iconPng, logoSvg } from './og.ts';
 const root = path.resolve(import.meta.dirname, '..');
 const dist = path.join(root, 'dist');
 const ssr = await import(pathToFileURL(path.join(root, 'dist-ssr', 'entry-server.js')).href);
-const { render, routes, getMeta, headTags, site, tools, categories, themeBootScript, consentDefaultScript } = ssr;
+const { render, routes, embedRoutes, getMeta, headTags, site, tools, categories, themeBootScript, consentDefaultScript } = ssr;
 
 const template = await readFile(path.join(dist, 'index.html'), 'utf8');
 
@@ -34,13 +34,19 @@ function commonHead(): string {
 }
 
 const head = commonHead();
+/**
+ * Gömülü hesaplayıcı başlığı: başka sitenin iframe'inde açılır. Tema betiği yok (her zaman açık tema —
+ * ev sahibinin zemininde koyu kutu çıkmasın), AdSense hesabı/çerez varsayılanı yok (reklam ve analitik
+ * gömülü modda hiç yüklenmez), doğrulama etiketleri yok.
+ */
+const embedHead = font ? `<link rel="preload" href="/assets/${font}" as="font" type="font/woff2" crossorigin>` : '';
 const fileFor = (route: string) => (route === '/' ? 'index.html' : `${route.slice(1)}.html`);
 const problems: string[] = [];
 
-async function writePage(route: string, file: string) {
+async function writePage(route: string, file: string, pageHead = head) {
   const body = await render(route);
   const meta = getMeta(route);
-  const html = template.replace('<!--head-->', `${headTags(meta)}\n    ${head}`).replace('<!--app-->', body);
+  const html = template.replace('<!--head-->', `${headTags(meta)}\n    ${pageHead}`).replace('<!--app-->', body);
   // Doğrulama: tek H1, başlık, açıklama
   if (/<!--\$[?!]-->/.test(body))
     problems.push(`${route}: askıda/istemci-çizimli Suspense sınırı (içerik HTML'de yerinde değil)`);
@@ -57,6 +63,11 @@ for (const route of routes as string[]) {
 }
 await writePage('/404', '404.html');
 console.log(`✓ ${routes.length} sayfa + 404 ön-render edildi (${(total / 1024).toFixed(0)} KB HTML)`);
+
+// Gömülü hesaplayıcılar — sitemap'e GİRMEZ (aşağıdaki sitemap yalnız `routes`'u kullanır)
+await mkdir(path.join(dist, 'gom'), { recursive: true });
+for (const route of embedRoutes as string[]) await writePage(route, fileFor(route), embedHead);
+console.log(`✓ ${embedRoutes.length} gömülü hesaplayıcı (/gom/*) ön-render edildi`);
 
 // sitemap.xml — yalnızca dizine eklenecek sayfalar
 // Günlük build'de tarih oynamasın: araç dışı sayfalar en son güncellenen aracın tarihini alır.

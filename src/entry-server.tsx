@@ -20,6 +20,12 @@ export const routes = [
   ...Object.keys(staticPages),
 ];
 
+/**
+ * Gömülü hesaplayıcılar (/gom/<araç>). `routes`'tan AYRI tutulur: sitemap `routes`'tan üretiliyor ve
+ * bu sayfalar dizinlenmemeli. Ön-render şart — worker'da SPA yedeği yok (not_found_handling: 404-page).
+ */
+export const embedRoutes = toolSlugsWithPages.map((s) => `/gom/${s}`);
+
 /** Ön-render için EAGER sayfa haritası — hiçbir Suspense sınırı askıya alınmaz */
 const ssrPages: Pages = {
   tools: new Map(

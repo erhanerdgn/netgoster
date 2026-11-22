@@ -18,4 +18,8 @@
     { "pattern": "www.netgoster.com", "custom_domain": true },
   ],
   "observability": { "enabled": true },
+  // Yalnız `wrangler dev` (pnpm preview). wrangler isteği ilk route'un alan adına (netgoster.com) yeniden
+  // yazıp düz http ile iletiyordu; worker'ın http→https yönlendirmesi yerel önizlemeyi sonsuz döngüye
+  // sokuyordu. Canlıda yok sayılır.
+  "dev": { "upstream_protocol": "https" },
 }

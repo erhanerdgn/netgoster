@@ -21,8 +21,10 @@ import { categoryById, getTool, toolBySlug } from '@/tools.registry';
 import { site } from '@/config/site';
 import { dateLong } from '@/lib/format';
 import { pushRecent } from '@/lib/storage';
+import { useEmbed, YUKSEKLIK_MESAJI } from '@/lib/embed';
 import type { ContentModule } from '@/lib/content';
 import { ResultCard, ResultTableView, type ResultView } from './ResultCard';
+import { EmbedCode } from './EmbedCode';
 
 export interface Source {
   label: string;
@@ -103,6 +105,8 @@ export function CalculatorLayout<In extends FieldValues, Out>({
 }: Props<In, Out>) {
   const tool = getTool(slug);
   const category = categoryById.get(tool.category)!;
+  const embed = useEmbed();
+  const embedRef = useRef<HTMLDivElement>(null);
   const form = useForm<In, unknown, Out>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema as any) as any,
@@ -124,7 +128,8 @@ export function CalculatorLayout<In extends FieldValues, Out>({
 
   // URL'deki paylaşılmış değerleri yükle + son kullanılanlara ekle
   useEffect(() => {
-    pushRecent(slug);
+    // Gömülü modda ziyaretçinin netgoster "son kullanılanlar" listesine yazma — başka sitede kullanıyor
+    if (!embed) pushRecent(slug);
     const fromUrl = parseQuery(location.search, example);
     if (fromUrl) form.reset({ ...defaults, ...fromUrl } as In);
     hydrated.current = true;
@@ -150,6 +155,19 @@ export function CalculatorLayout<In extends FieldValues, Out>({
     return () => clearTimeout(t);
   }, [values]);
 
+  // Gömülü modda ev sahibi sayfaya içeriğin yüksekliğini bildir; gömme kodundaki betik iframe'i
+  // buna göre büyütür (bkz. lib/embed.ts > gommeKodu). Yalnız sayı gider, hassas veri yok.
+  useEffect(() => {
+    const el = embedRef.current;
+    if (!embed || !el || window.parent === window) return;
+    const gonder = () =>
+      window.parent.postMessage({ tur: YUKSEKLIK_MESAJI, slug, h: Math.ceil(el.getBoundingClientRect().height) + 8 }, '*');
+    const ro = new ResizeObserver(gonder);
+    ro.observe(el);
+    gonder();
+    return () => ro.disconnect();
+  }, [embed, slug]);
+
   const onSubmit = form.handleSubmit((data) => {
     setResult(safeCompute(compute, data));
     setResultQuery(toQuery(form.getValues()));
@@ -160,6 +178,69 @@ export function CalculatorLayout<In extends FieldValues, Out>({
 
   const related = tool.related.map((s) => toolBySlug.get(s)).filter((t) => t !== undefined);
   const url = `${site.url}/${tool.slug}`;
+
+  const formEl = (
+    <FormProvider {...form}>
+      <form
+        ref={formRef}
+        onSubmit={onSubmit}
+        noValidate
+        aria-label={`${tool.name} formu`}
+        className="scroll-mt-20 rounded-2xl border bg-card p-5 shadow-soft sm:p-6"
+      >
+        {formTop}
+        <div className="grid gap-5 sm:grid-cols-2">{children}</div>
+        <div className="mt-6 flex flex-wrap gap-2 border-t pt-5" data-no-print>
+          <Button type="submit" size="lg" className="flex-1 sm:flex-none">
+            <Calculator aria-hidden /> Hesapla
+          </Button>
+          <Button type="button" variant="secondary" size="lg" onClick={() => form.reset(example)}>
+            <WandSparkles aria-hidden /> Örnek değerlerle doldur
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="lg"
+            onClick={() => {
+              form.reset(defaults);
+              const initial = schema.safeParse(defaults);
+              setResult(initial.success ? safeCompute(compute, initial.data) : null);
+              setResultQuery(toQuery(defaults));
+              history.replaceState(history.state, '', location.pathname);
+            }}
+          >
+            <RotateCcw aria-hidden /> Sıfırla
+          </Button>
+        </div>
+      </form>
+    </FormProvider>
+  );
+
+  // Gömülü hesaplayıcı (/gom/<araç>): form + sonuç + tablo + tam sürüme bağlantı. Reklam, gezinme,
+  // içerik, JSON-LD yok. Tek H1 (ön-render denetimi bunu istiyor).
+  if (embed) {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <div ref={embedRef} className="p-3 sm:p-4">
+          <h1 className="mb-3 text-lg leading-tight font-bold">{tool.title}</h1>
+          <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem]">
+            {formEl}
+            <div ref={resultRef} className="space-y-4">
+              <ResultCard result={result} title={tool.title} emptyHint={emptyHint} />
+              {result?.extra}
+            </div>
+          </div>
+          {result?.table && <ResultTableView table={result.table} />}
+          <p className="mt-3 text-xs text-muted-foreground">
+            <a href={url} target="_blank" rel="noopener" className="underline underline-offset-4 hover:text-primary">
+              {tool.title} — açıklamalar ve formülle NetGöster&apos;de
+            </a>
+          </p>
+          <Toaster />
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -185,40 +266,7 @@ export function CalculatorLayout<In extends FieldValues, Out>({
 
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_25rem]">
           <div className="flex min-w-0 flex-col gap-6">
-            <FormProvider {...form}>
-              <form
-                ref={formRef}
-                onSubmit={onSubmit}
-                noValidate
-                aria-label={`${tool.name} formu`}
-                className="scroll-mt-20 rounded-2xl border bg-card p-5 shadow-soft sm:p-6"
-              >
-                {formTop}
-                <div className="grid gap-5 sm:grid-cols-2">{children}</div>
-                <div className="mt-6 flex flex-wrap gap-2 border-t pt-5" data-no-print>
-                  <Button type="submit" size="lg" className="flex-1 sm:flex-none">
-                    <Calculator aria-hidden /> Hesapla
-                  </Button>
-                  <Button type="button" variant="secondary" size="lg" onClick={() => form.reset(example)}>
-                    <WandSparkles aria-hidden /> Örnek değerlerle doldur
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="lg"
-                    onClick={() => {
-                      form.reset(defaults);
-                      const initial = schema.safeParse(defaults);
-                      setResult(initial.success ? safeCompute(compute, initial.data) : null);
-                      setResultQuery(toQuery(defaults));
-                      history.replaceState(history.state, '', location.pathname);
-                    }}
-                  >
-                    <RotateCcw aria-hidden /> Sıfırla
-                  </Button>
-                </div>
-              </form>
-            </FormProvider>
+            {formEl}
             <FormColumnAd formRef={formRef} resultRef={resultRef} />
           </div>
           <div ref={resultRef} className="space-y-4 lg:sticky lg:top-20">
@@ -256,6 +304,8 @@ export function CalculatorLayout<In extends FieldValues, Out>({
             <CalendarCheck className="size-4" aria-hidden />
             Son güncelleme: <time dateTime={tool.updated}>{dateLong(tool.updated)}</time>
           </p>
+          {/* Başlık (ör. "Kredi Hesaplama") bağlantı metni olur — kısa ad ("Kredi") hedef kelimeyi taşımaz */}
+          <EmbedCode slug={tool.slug} name={tool.title} />
         </div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">

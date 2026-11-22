@@ -47,6 +47,15 @@ function SlugRoute() {
   return <NotFoundPage />;
 }
 
+/** /gom/<araç> — gömülü hesaplayıcı. Yalnız araçlar gömülebilir; kategori ve yasal sayfalar değil. */
+function GomRoute() {
+  const { slug = '' } = useParams();
+  const { tools } = useContext(PagesContext);
+  const Tool = tools.get(slug);
+  // eslint-disable-next-line react-hooks/static-components
+  return Tool ? <Tool /> : <NotFoundPage />;
+}
+
 export function App({ pages = clientPages }: { pages?: Pages }) {
   return (
     <PagesContext.Provider value={pages}>
@@ -54,6 +63,7 @@ export function App({ pages = clientPages }: { pages?: Pages }) {
         <Suspense fallback={<div className="min-h-[70vh]" />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/gom/:slug" element={<GomRoute />} />
             <Route path="/:slug" element={<SlugRoute />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

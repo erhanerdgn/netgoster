@@ -51,6 +51,11 @@ export function getMeta(pathname: string): PageMeta {
       ogImage: og('home'),
     };
   }
+  // Gömülü hesaplayıcı (/gom/<araç>): dizinlenmez, sitemap'e girmez — bkz. lib/embed.ts
+  if (path.startsWith('/gom/')) {
+    const t = toolBySlug.get(path.slice('/gom/'.length));
+    if (t) return { title: `${t.name}${suffix}`, description: t.description, path, ogImage: og(t.slug), noindex: true };
+  }
   const slug = path.slice(1);
   const tool = toolBySlug.get(slug);
   if (tool) {

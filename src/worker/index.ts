@@ -28,6 +28,13 @@ function withHeaders(res: Response, path: string, host = ''): Response {
   for (const [k, v] of Object.entries(security)) out.headers.set(k, v);
   // workers.dev / önizleme adresleri asıl alan adının kopyası olarak dizinlenmesin
   if (host !== site.domain) out.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  // Gömülü hesaplayıcı (/gom/*): başka sitelerin iframe'inde açılabilmeli; diğer her yerde SAMEORIGIN kalır.
+  // Dizinlenmez ama içindeki "tam sürüm" bağlantısı izlenir (follow). Ayrıntı: src/lib/embed.ts
+  if (path.startsWith('/gom/')) {
+    out.headers.delete('X-Frame-Options');
+    out.headers.set('Content-Security-Policy', 'frame-ancestors *');
+    out.headers.set('X-Robots-Tag', host === site.domain ? 'noindex, follow' : 'noindex, nofollow');
+  }
   const type = out.headers.get('Content-Type') ?? '';
   if (path.startsWith('/assets/')) {
     // Vite hash'li dosyalar: içerik değişirse adı değişir → 1 yıl, değişmez
@@ -55,7 +62,8 @@ export default {
      * Search Console bunu "Yönlendirmeli sayfa"/yinelenen içerik olarak raporluyor.
      * İkisi tek atlamada çözülür — zincirleme yönlendirme tarama bütçesi harcar.
      */
-    if (url.protocol === 'http:' || host === `www.${site.domain}`) {
+    // Yalnız asıl alan adında: localhost'ta (wrangler dev, düz http) yönlendirme yerel önizlemeyi canlıya atıyordu.
+    if (host === `www.${site.domain}` || (host === site.domain && url.protocol === 'http:')) {
       url.protocol = 'https:';
       url.hostname = site.domain;
       url.port = '';

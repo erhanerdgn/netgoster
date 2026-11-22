@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from 'cn';
 import { site } from '@/config/site';
 import { adsEnabled, getConsent, onConsent } from '@/lib/consent';
+import { useEmbed } from '@/lib/embed';
 
 export type SlotName = keyof typeof site.adSlots;
 
@@ -33,6 +34,7 @@ interface Props {
 
 /** Ayrılan alan reklam gelene kadar sade bir Ads kutusu olarak kalır. */
 export function AdSlot({ slot, variant = 'horizontal', desktopOnly, className }: Props) {
+  const embed = useEmbed();
   const ref = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [filled, setFilled] = useState(false);
@@ -104,7 +106,8 @@ export function AdSlot({ slot, variant = 'horizontal', desktopOnly, className }:
     };
   }, [slotId, allowed, forcedPreview]);
 
-  if (!allowed) return null;
+  // Gömülü hesaplayıcıda (başka sitenin iframe'i) reklam AdSense politikasına aykırı
+  if (!allowed || embed) return null;
 
   return (
     <aside data-no-print aria-label={`Reklam: ${slotLabels[slot]}`} className={cn('my-8', className)}>

@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
+import { EmbedContext, isEmbedPath } from '@/lib/embed';
 import { getMeta } from '@/lib/seo';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -28,6 +29,19 @@ function RouteEffects() {
 }
 
 export function SiteLayout({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+
+  // Gömülü hesaplayıcı: yalnız içerik. Piyasa şeridi (Binance websocket), başlık, altbilgi ve
+  // çerez bandı yok — çerez bandı olmayınca initConsent() hiç çağrılmaz, AdSense/GA betiği yüklenmez.
+  if (isEmbedPath(pathname)) {
+    return (
+      <EmbedContext.Provider value>
+        <RouteEffects />
+        <main id="icerik">{children}</main>
+      </EmbedContext.Provider>
+    );
+  }
+
   return (
     <>
       <RouteEffects />
