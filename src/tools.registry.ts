@@ -903,7 +903,10 @@ export const tools: Tool[] = [
   },
   {
     slug: 'gun-hafta-ay-yil-cevirici',
-    title: 'Gün Hafta Ay Yıl Çevirici',
+    // Başlık sorgunun kendi kelimelerini taşır: Search Console'da bu sayfa "249 gün kaç ay",
+    // "251 hafta kaç yıl" gibi sorgularda 9-10. sırada ama TO %0. Eski başlık ("Gün Hafta Ay
+    // Yıl Çevirici") arayanın sorusunu karşılamıyordu; içerik zaten cevabı veriyor.
+    title: 'Gün Kaç Ay, Hafta Kaç Yıl? Süre Çevirici',
     name: 'Gün Ay Yıl Çevirici',
     description:
       'Gün kaç ay, hafta kaç ay, saat kaç gün? Saniyeden yıla süre çevirici: 249 gün = 8 ay 6 gün gibi bileşik sonuç, 30 günlük ay ve takvime göre kesin hesap.',
