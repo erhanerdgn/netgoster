@@ -712,14 +712,17 @@ export const tools: Tool[] = [
   },
   {
     slug: 'tarih-hesaplama',
-    title: 'Tarih Hesaplama',
+    // Search Console (27 Eki–21 Kas): bu sayfa "249 gün kaç ay", "251 hafta kaç yıl" gibi
+    // sorgularda 9-10. sırada, TO %0. Başlık sorgunun kelimelerini ("kaç gün, hafta, ay") taşır;
+    // sorunun asıl cevabı olan süre çevirici de ilgili araçların başında.
+    title: 'Tarih Hesaplama: İki Tarih Arası Kaç Gün, Hafta, Ay?',
     name: 'Tarih',
     description:
-      'Tarih hesaplama: iki tarih arasındaki gün, hafta ve ay farkını, iş günü sayısını bulun; bir tarihe gün ekleyin veya çıkarın (resmi tatiller dahil).',
+      'İki tarih arası kaç gün, kaç hafta, kaç ay? Tarih hesaplama: gün farkını ve iş günü sayısını bulun, bir tarihe gün ekleyin veya çıkarın; resmi tatiller dahil.',
     lead: 'İki tarih arasındaki farkı bulun veya bir tarihe gün ekleyip çıkarın; isterseniz yalnızca iş günlerini sayın.',
     category: 'gunluk',
     icon: CalendarRange,
-    related: ['yas-hesaplama', 'yillik-izin-hesaplama', 'gebelik-haftasi-hesaplama', 'yuzde-hesaplama'],
+    related: ['gun-hafta-ay-yil-cevirici', 'yas-hesaplama', 'yillik-izin-hesaplama', 'gebelik-haftasi-hesaplama'],
     warning: 'yok',
     keywords: ['tarih', 'gün hesaplama', 'iki tarih arası', 'iş günü', 'gün ekle'],
     noYear: true,
@@ -903,8 +906,8 @@ export const tools: Tool[] = [
   },
   {
     slug: 'gun-hafta-ay-yil-cevirici',
-    // Başlık sorgunun kendi kelimelerini taşır: Search Console'da bu sayfa "249 gün kaç ay",
-    // "251 hafta kaç yıl" gibi sorgularda 9-10. sırada ama TO %0. Eski başlık ("Gün Hafta Ay
+    // Başlık sorgunun kendi kelimelerini taşır: Search Console'da "249 gün kaç ay",
+    // "251 hafta kaç yıl" gibi sorgular 9-10. sırada (tarih-hesaplama üzerinden) ama TO %0. Eski başlık ("Gün Hafta Ay
     // Yıl Çevirici") arayanın sorusunu karşılamıyordu; içerik zaten cevabı veriyor.
     title: 'Gün Kaç Ay, Hafta Kaç Yıl? Süre Çevirici',
     name: 'Gün Ay Yıl Çevirici',
