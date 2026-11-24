@@ -712,7 +712,7 @@ export const tools: Tool[] = [
   },
   {
     slug: 'tarih-hesaplama',
-    // Search Console (27 Eki–21 Kas): bu sayfa "249 gün kaç ay", "251 hafta kaç yıl" gibi
+    // Search Console (3–21 Kas): bu sayfa "249 gün kaç ay", "251 hafta kaç yıl" gibi
     // sorgularda 9-10. sırada, TO %0. Başlık sorgunun kelimelerini ("kaç gün, hafta, ay") taşır;
     // sorunun asıl cevabı olan süre çevirici de ilgili araçların başında.
     title: 'Tarih Hesaplama: İki Tarih Arası Kaç Gün, Hafta, Ay?',
