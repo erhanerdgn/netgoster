@@ -31,7 +31,11 @@ export function Footer() {
             kuruma danışın.
           </p>
           <p>
-            Diğer projelerimiz:{' '}
+            Geliştiren:{' '}
+            <a href="https://www.erdogan.gen.tr/tr" className="underline-offset-2 hover:text-primary hover:underline">
+              Erhan Erdoğan
+            </a>{' '}
+            · Diğer projelerimiz:{' '}
             <a href="https://www.beyyine.app/" className="underline-offset-2 hover:text-primary hover:underline">
               Beyyine
             </a>{' '}
